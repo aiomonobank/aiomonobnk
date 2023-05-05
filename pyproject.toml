@@ -1,0 +1,15 @@
+[tool.poetry]
+name = "mbnk"
+version = "0.0.3"
+description = "Sync version monobank api"
+authors = ["yeghorkikhai <yeghorkikhai@gmail.com>"]
+license = "MIT"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.8"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
