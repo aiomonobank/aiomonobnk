@@ -1,4 +1,4 @@
-from mbnk.utils import to_camel_case
+from mbnk.utils.format import to_camel_case
 
 
 def data_builder(**kwargs):
