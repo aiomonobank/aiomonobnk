@@ -1,3 +1,7 @@
+__all__ = [
+    'webhook_authentication'
+]
+
 import base64
 import hashlib
 
