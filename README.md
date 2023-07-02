@@ -6,13 +6,13 @@
 <br>
 <br>&bull; Monobank Open API 
 <br>official docs: https://api.monobank.ua/docs/ 
-<br>lib docs: 
+<br>lib docs: https://github.com/yeghorkikhai/mbnk/blob/master/docs/monobank_open_api.md
 <br>&bull; Monobank Open API for providers 
 <br> official docs: https://api.monobank.ua/docs/corporate.html
-<br>lib docs: 
+<br>lib docs: https://github.com/yeghorkikhai/mbnk/blob/master/docs/monobank_corp_open_api.md
 <br>&bull; MonoPay - Monobank Acquiring
 <br>official docs: https://api.monobank.ua/docs/acquiring.html
-<br>lib docs: 
+<br>lib docs: https://github.com/yeghorkikhai/mbnk/blob/master/docs/monopay_api.md
 
 ### Github
 ```
