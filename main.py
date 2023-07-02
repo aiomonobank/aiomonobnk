@@ -11,7 +11,7 @@ async def main():
         api_token=api_token
     )
 
-    response = await async_monopay.wallet.delete_card(card_token="sad")
+    response = await async_monopay.merchant.details()
 
     print(response)
 
