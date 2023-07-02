@@ -16,15 +16,18 @@ def underscore_to_camel(name):
     return under_pat.sub(lambda x: x.group(1).upper(), name)
 
 
-def list_to_json(l, convert):
-    new_l = []
-    for d in l:
-        new_l.append(convert_json(d, convert))
-    return new_l
+def convert_json(data, convert):
+    if isinstance(data, dict):
+        new_d = {}
 
+        for k, v in data.items():
+            new_d[convert(k)] = convert_json(v, convert) if isinstance(v, dict) else convert_json(v, convert) if isinstance(v, list) else v
 
-def convert_json(d, convert):
-    new_d = {}
-    for k, v in d.items():
-        new_d[convert(k)] = convert_json(v, convert) if isinstance(v, dict) else list_to_json(v, convert) if isinstance(v, list) else v
-    return new_d
+        return new_d
+    elif isinstance(data, list):
+        new_l = []
+
+        for d in data:
+            new_l.append(convert_json(d, convert))
+
+        return new_l

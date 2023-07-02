@@ -1,7 +1,10 @@
 from enum import Enum
 
 
-class MonoPayApiUrls(str, Enum):
+class APIPaths(str, Enum):
+
+    # MonoPay
+
     merchant_details = "{base_url}/api/merchant/details"
     merchant_statement = "{base_url}/api/merchant/statement"
     merchant_pubkey = "{base_url}/api/merchant/pubkey"
@@ -21,3 +24,22 @@ class MonoPayApiUrls(str, Enum):
     wallet_cards = "{base_url}/api/merchant/wallet"
     wallet_payment = "{base_url}/api/merchant/wallet/payment"
     wallet_delete_card = "{base_url}/api/merchant/wallet/card"
+
+    # Monobank Open API
+
+    currencies_list = "{base_url}/bank/currency"
+
+    personal_info = "{base_url}/personal/client-info"
+    personal_webhook = "{base_url}/personal/webhook"
+    personal_statement = "{base_url}/personal/statement/{account}/{from}/{to}"
+
+    # Monobank Open API for providers
+
+    auth_registration = "{base_url}/personal/auth/registration"
+    auth_status = "{base_url}/personal/auth/registration/status"
+
+    corporate_webhook = "{base_url}/personal/corp/webhook"
+    corporate_info = "{base_url}/personal/corp/settings"
+
+    init_access = "{base_url}/personal/auth/request"
+    check_access = "{base_url}/personal/auth/request"

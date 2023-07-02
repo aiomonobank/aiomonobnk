@@ -35,9 +35,9 @@ class Account:
     credit_limit: int
     type: str
     currency_code: int
-    cashback_type: Optional[str]
     masked_pan: List[str]
     iban: str
+    cashback_type: Optional[str] = None
 
 
 @dataclass
@@ -65,12 +65,12 @@ class Transaction:
     commission_rate: int
     cashback_amount: int
     balance: int
-    comment: Optional[str]
-    receipt_id: Optional[str]
-    invoice_id: Optional[str]
-    counter_edrpou: Optional[str]
-    counter_iban: Optional[str]
-    counter_name: Optional[str]
+    comment: Optional[str] = None
+    receipt_id: Optional[str] = None
+    invoice_id: Optional[str] = None
+    counter_edrpou: Optional[str] = None
+    counter_iban: Optional[str] = None
+    counter_name: Optional[str] = None
 
 
 # MonoPay API Instances

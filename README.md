@@ -1,24 +1,54 @@
 ## Sync/Async Python3 Monobank API
 
+### Introduction
+
+<b>mbnk</b> - python lib for: 
+<br>
+<br>
+&bull; Monobank Open API <br> official docs: https://api.monobank.ua/docs/
+<br>
+&bull; Monobank Open API for providers <br> official docs: https://api.monobank.ua/docs/corporate.html
+<br>
+&bull; MonoPay - Monobank Acquiring <br> official docs: https://api.monobank.ua/docs/acquiring.html
+
 ### Installation
 ```python
 pip install mbnk
 ```
 
-### Getting Started
+### Getting Started Monobank Open API
 
 ```python
+# Sync Version Monobank API
 import os
 from mbnk import Monobank
 
 # Your Monobank API token 
-TOKEN = os.getenv('<X-Token>')
+api_token = os.getenv('<X-Token>')
 
-mbnk = Monobank(api_token=TOKEN)
+mbnk = Monobank(api_token=api_token)
 
 #Get currencies rates list
 currencies_list = mbnk.public.currency_rates()
-print(currencies_list)
+
+# Async Version Monobank API
+import os
+import asyncio
+from mbnk.asyncio import AsyncMonobank
+
+# Your Monobank API token 
+api_token = os.getenv('<X-Token>')
+
+
+async def main():
+    async_mbnk = AsyncMonobank(api_token=api_token)
+    
+    currencies_list = await mbnk.public.currency_rates()
+
+    
+if __name__ == "__main__":
+    asyncio.run(main())
+
 ```
 
 ```python
