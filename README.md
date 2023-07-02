@@ -1,3 +1,8 @@
+# Mbnk
+<hr>
+
+![PyPI](https://img.shields.io/pypi/v/mbnk)
+
 ## Sync/Async Python3 Monobank API
 
 ### Introduction
