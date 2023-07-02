@@ -9,7 +9,6 @@ from aiohttp import (
 )
 from typing import Union, Optional
 
-from mbnk.decorators import api_method
 from mbnk.enums import APIPaths
 
 from mbnk.exceptions import (
@@ -39,46 +38,46 @@ class APIMethod:
         self.__headers["X-Token"] = self.__api_token
 
     @staticmethod
-    def camel_to_underscore(text: str):
+    def __camel_to_underscore(text: str):
         camel_pat = re.compile(r'([A-Z])')
         return camel_pat.sub(lambda x: '_' + x.group(1).lower(), text)
 
     @staticmethod
-    def underscore_to_camel(text: str):
+    def __underscore_to_camel(text: str):
         under_pat = re.compile(r'_([a-z])')
         return under_pat.sub(lambda x: x.group(1).upper(), text)
 
-    def json_convert(self, data, convert):
+    def __json_convert(self, data, convert):
         if isinstance(data, dict):
             new_data = {}
             for k, value in data.items():
-                new_data[convert(k)] = self.json_convert(value, convert) if (
+                new_data[convert(k)] = self.__json_convert(value, convert) if (
                     isinstance(value, dict)
-                ) else self.json_convert(value, convert) if isinstance(value, list) else value
+                ) else self.__json_convert(value, convert) if isinstance(value, list) else value
             return new_data
         elif isinstance(data, list):
             new_list = []
             for item in data:
-                new_list.append(self.json_convert(item, convert))
+                new_list.append(self.__json_convert(item, convert))
             return new_list
 
-    def load_response(self, response_data: Union[dict, list]):
+    def __load_response(self, response_data: Union[dict, list]):
 
-        return self.json_convert(response_data, self.camel_to_underscore)
+        return self.__json_convert(response_data, self.__camel_to_underscore)
 
-    def build_data(self, **kwargs):
+    def __build_data(self, **kwargs):
         data = {}
 
         for kwarg in kwargs:
             key = kwarg.replace("timestamp", "")
-            key = self.underscore_to_camel(key)
+            key = self.__underscore_to_camel(key)
             value = kwargs.get(kwarg)
             data[key] = value
 
         return data
 
     @staticmethod
-    def is_exception(response: Union[Response, ClientResponse]) -> bool:
+    def __is_exception(response: Union[Response, ClientResponse]) -> bool:
         if isinstance(response, Response):
             if response.status_code != 200:
                 return True
@@ -89,7 +88,7 @@ class APIMethod:
 
         return False
 
-    def sync_request(
+    def __sync_request(
             self,
             method: str,
             path: str,
@@ -104,14 +103,14 @@ class APIMethod:
             data=json.dumps(data) if data is not None else None
         )
         response_data = response.json()
-        response_data = self.load_response(response_data)
+        response_data = self.__load_response(response_data)
 
-        if self.is_exception(response):
+        if self.__is_exception(response):
             return MonoPayAPIException(**response_data)
 
         return response_data
 
-    async def async_request(
+    async def __async_request(
             self,
             method: str,
             path: str,
@@ -127,9 +126,9 @@ class APIMethod:
                     params=params
             ) as response:
                 response_data = await response.json()
-                response_data = self.load_response(response_data)
+                response_data = self.__load_response(response_data)
 
-                if self.is_exception(response):
+                if self.__is_exception(response):
                     return MonoPayAPIException(**response_data)
 
                 return response_data
@@ -146,11 +145,11 @@ class APIMethod:
                 func_args = {
                     "method": request_method,
                     "path": path,
-                    ("params" if request_method == "get" else "data"): self.build_data(**kwargs)
+                    ("params" if request_method == "get" else "data"): self.__build_data(**kwargs)
                 }
 
                 async def async_wrapper():
-                    response = await self.async_request(**func_args)
+                    response = await self.__async_request(**func_args)
 
                     if isinstance(response, MonoPayAPIException) or isinstance(response, MonobankAPIException):
                         return response
@@ -158,7 +157,7 @@ class APIMethod:
                     return func(self, *args, **kwargs, response_data=response)
 
                 def sync_wrapper():
-                    response = self.sync_request(**func_args)
+                    response = self.__sync_request(**func_args)
 
                     if isinstance(response, MonoPayAPIException) or isinstance(response, MonobankAPIException):
                         return response
@@ -176,24 +175,10 @@ class APIMethod:
 
 
 # Monobank Open API
-class Public:
+class Public(APIMethod):
 
-    __base_url__ = None
-    __headers__ = {}
-
-    def __init__(
-            self,
-            base_url: str,
-            headers: dict,
-            _async: bool
-    ):
-        self.__is_async__ = _async
-
-        self.__base_url__ = base_url
-        self.__headers__ = headers
-
-    @api_method("get", url=APIPaths.currencies_list)
-    def currency_rates(self, **kwargs) -> Union[CurrencyRatesResponse, MonobankAPIException]:
+    @APIMethod.request("get", path=APIPaths.currencies_list)
+    def currency(self, **kwargs) -> Union[CurrencyRatesResponse, MonobankAPIException]:
 
         return CurrencyRatesResponse(
             list=[
@@ -204,23 +189,9 @@ class Public:
         )
 
 
-class Personal:
+class Personal(APIMethod):
 
-    __base_url__ = None
-    __headers__ = {}
-
-    def __init__(
-            self,
-            base_url: str,
-            headers: dict,
-            _async: bool
-    ):
-        self.__is_async__ = _async
-
-        self.__base_url__ = base_url
-        self.__headers__ = headers
-
-    @api_method("get", url=APIPaths.personal_info)
+    @APIMethod.request("get", path=APIPaths.personal_info)
     def info(self, **kwargs) -> Union[ClientInfoResponse, MonobankAPIException]:
         """
         Source: https://api.monobank.ua/docs/#tag/Kliyentski-personalni-dani/paths/~1personal~1client-info/get
@@ -245,7 +216,7 @@ class Personal:
             ]
         )
 
-    @api_method("post", url=APIPaths.personal_webhook)
+    @APIMethod.request("post", path=APIPaths.personal_webhook)
     def set_webhook(self, web_hook_url: str) -> Union[EmptyResponse, MonobankAPIException]:
         """
         Source: https://api.monobank.ua/docs/#tag/Kliyentski-personalni-dani/paths/~1personal~1webhook/post
@@ -255,7 +226,7 @@ class Personal:
         """
         return EmptyResponse()
 
-    @api_method("get", url=APIPaths.personal_statement)
+    @APIMethod.request("get", path=APIPaths.personal_statement)
     def statement(self, **kwargs) -> Union[StatementResponse, MonobankAPIException]:
 
         return StatementResponse(
@@ -267,21 +238,13 @@ class Personal:
         )
 
 
-class Corporate:
+class Corporate(APIMethod):
 
     __base_url__ = None
     __headers__ = {}
 
-    def __init__(
-            self,
-            base_url: str,
-            headers: dict,
-            _async: bool
-    ):
-        self.__is_async__ = _async
-
-        self.__base_url__ = base_url
-        self.__headers__ = headers
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
         self.auth: Authorization = Authorization(
             base_url=self.__base_url__,
@@ -302,84 +265,60 @@ class Corporate:
         pass
 
 
-class Client:
+class Client(APIMethod):
 
-    __base_url__ = None
-    __headers__ = {}
-
-    def __init__(
-            self,
-            base_url: str,
-            headers: dict,
-            _async: bool
-    ):
-        self.__is_async__ = _async
-
-        self.__base_url__ = base_url
-        self.__headers__ = headers
-
+    @APIMethod.request("post", path=APIPaths.init_access)
     def init_access(self):
         pass
 
+    @APIMethod.request("get", path=APIPaths.check_access)
     def check_access(self):
         pass
 
 
-class Authorization:
+class Authorization(APIMethod):
 
-    __base_url__ = None
-    __headers__ = {}
-
-    def __init__(
-            self,
-            base_url: str,
-            headers: dict,
-            _async: bool
-    ):
-        self.__is_async__ = _async
-
-        self.__base_url__ = base_url
-        self.__headers__ = headers
-
+    @APIMethod.request("post", path=APIPaths.auth_registration)
     def registration(self):
         pass
 
+    @APIMethod.request("post", path=APIPaths.auth_status)
     def status(self):
         pass
 
 
 class MonobankOpenAPI:
 
-    __base_url__ = "https://api.monobank.ua"
-    __api_token__ = None
-    __headers__ = {}
+    __base_url = "https://api.monobank.ua"
+    __api_token = None
+    __headers = {}
 
     def __init__(self, api_token: str, _async: bool):
-        self.__is_async__ = _async
+        self.__is_async = _async
 
         self.__api_token__ = api_token
-        self.__headers__["X-Token"] = self.__api_token__
+        self.__headers["X-Token"] = self.__api_token__
 
         self.public: Public = Public(
-            base_url=self.__base_url__,
-            headers=self.__headers__,
-            _async=self.__is_async__
+            api_token=self.__api_token,
+            base_url=self.__base_url,
+            _async=self.__is_async
         )
 
         self.personal: Personal = Personal(
-            base_url=self.__base_url__,
-            headers=self.__headers__,
-            _async=self.__is_async__
+            api_token=self.__api_token,
+            base_url=self.__base_url,
+            _async=self.__is_async
         )
 
         self.corporate: Corporate = Corporate(
-            base_url=self.__base_url__,
-            headers=self.__headers__,
-            _async=self.__is_async__
+            api_token=self.__api_token,
+            base_url=self.__base_url,
+            _async=self.__is_async
         )
 
 
-class MonobankCorporateOpenAPI:
+class MonobankCorpAPI:
     pass
 
 

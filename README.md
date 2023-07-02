@@ -4,12 +4,20 @@
 
 <b>mbnk</b> - python lib for: 
 <br>
-<br>
-&bull; Monobank Open API <br> official docs: https://api.monobank.ua/docs/
-<br>
-&bull; Monobank Open API for providers <br> official docs: https://api.monobank.ua/docs/corporate.html
-<br>
-&bull; MonoPay - Monobank Acquiring <br> official docs: https://api.monobank.ua/docs/acquiring.html
+<br>&bull; Monobank Open API 
+<br>official docs: https://api.monobank.ua/docs/ 
+<br>lib docs: 
+<br>&bull; Monobank Open API for providers 
+<br> official docs: https://api.monobank.ua/docs/corporate.html
+<br>lib docs: 
+<br>&bull; MonoPay - Monobank Acquiring
+<br>official docs: https://api.monobank.ua/docs/acquiring.html
+<br>lib docs: 
+
+### Github
+```
+https://github.com/yeghorkikhai/mbnk
+```
 
 ### Installation
 ```python

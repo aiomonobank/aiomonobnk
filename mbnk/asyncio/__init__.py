@@ -1,6 +1,6 @@
 __all__ = [
     'AsyncMonoPay',
-    'AsyncMonobank'
+    'AsyncMonobankOpenAPI'
 ]
 
-from .mbnk import AsyncMonoPay, AsyncMonobank
+from mbnk.asyncio.mbnk import AsyncMonoPay, AsyncMonobankOpenAPI

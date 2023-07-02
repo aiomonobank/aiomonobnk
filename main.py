@@ -12,7 +12,7 @@ async def main():
         api_token=api_token
     )
 
-    response = await async_monopay.invoice.create(amount=100)
+    response = await async_monopay.invoice.create()
 
     print(response)
 
