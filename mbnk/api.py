@@ -11,10 +11,7 @@ from typing import Union, Optional
 
 from mbnk.enums import APIPaths
 
-from mbnk.exceptions import (
-    MonobankAPIException,
-    MonoPayAPIException
-)
+from mbnk.exceptions import *
 
 from mbnk.instances import *
 
@@ -79,14 +76,36 @@ class APIMethod:
     @staticmethod
     def __is_exception(response: Union[Response, ClientResponse]) -> bool:
         if isinstance(response, Response):
-            if response.status_code != 200:
-                return True
+            status_code = response.status_code
+        elif isinstance(response, ClientResponse):
+            status_code = response.status
+        else:
+            return True
 
-        if isinstance(response, ClientResponse):
-            if response.status != 200:
-                return True
+        if status_code != 200:
+            return True
 
         return False
+
+    @staticmethod
+    def __get_exception(response: Union[Response, ClientResponse]):
+        if isinstance(response, Response):
+            status_code = response.status_code
+        elif isinstance(response, ClientResponse):
+            status_code = response.status
+        else:
+            return
+
+        if status_code == 400:
+            raise Exception
+        elif status_code == 403:
+            raise Exception
+        elif status_code == 404:
+            raise Exception
+        elif status_code == 429:
+            raise TooManyRequestsException
+        else:
+            return MonoPayAPIException
 
     def __sync_request(
             self,
@@ -106,7 +125,7 @@ class APIMethod:
         response_data = self.__load_response(response_data)
 
         if self.__is_exception(response):
-            return MonoPayAPIException(**response_data)
+            raise self.__get_exception(response)
 
         return response_data
 
@@ -158,9 +177,6 @@ class APIMethod:
 
                 def sync_wrapper():
                     response = self.__sync_request(**func_args)
-
-                    if isinstance(response, MonoPayAPIException) or isinstance(response, MonobankAPIException):
-                        return response
 
                     return func(self, *args, **kwargs, response_data=response)
 
@@ -246,17 +262,9 @@ class Corporate(APIMethod):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.auth: Authorization = Authorization(
-            base_url=self.__base_url__,
-            headers=self.__headers__,
-            _async=self.__is_async__
-        )
+        self.auth: Authorization = Authorization(*args, **kwargs)
 
-        self.client: Client = Client(
-            base_url=self.__base_url__,
-            headers=self.__headers__,
-            _async=self.__is_async__
-        )
+        self.client: Client = Client(*args, **kwargs)
 
     def set_webhook(self):
         pass

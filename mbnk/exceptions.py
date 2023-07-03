@@ -1,7 +1,7 @@
-__all__ = [
-    'MonobankAPIException',
-    'MonoPayAPIException'
-]
+# __all__ = [
+#     'MonobankAPIException',
+#     'MonoPayAPIException'
+# ]
 
 from dataclasses import dataclass
 

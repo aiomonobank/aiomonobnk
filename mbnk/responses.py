@@ -1,10 +1,12 @@
 __all__ = [
     'EmptyResponse',
 
-    # Monobank API Responses
+    # Monobank Open API Responses
     'CurrencyRatesResponse',
     'ClientInfoResponse',
     'StatementResponse',
+
+    # Monobank Corp Open API Responses
 
     # MonoPay API Responses
     'InvoiceCreatedResponse',
