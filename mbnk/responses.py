@@ -6,9 +6,9 @@ __all__ = [
     'ClientInfoResponse',
     'StatementResponse',
 
-    # Monobank Corp Open API Responses
+    # Monobank Corporate Open API Responses
 
-    # MonoPay API Responses
+    # Mono Acquiring API Responses
     'InvoiceCreatedResponse',
     'InvoiceCanceledResponse',
     'InvoiceStatusResponse',
@@ -44,7 +44,7 @@ class EmptyResponse:
     pass
 
 
-# Monobank API Responses
+# Monobank Open API Responses
 @dataclass
 class CurrencyRatesResponse:
     list: List[CurrencyListItem]
@@ -65,7 +65,7 @@ class StatementResponse:
     list: List[Transaction]
 
 
-# MonoPay API Responses
+# Mono Acquiring API Responses
 @dataclass
 class InvoiceCreatedResponse:
     invoice_id: str

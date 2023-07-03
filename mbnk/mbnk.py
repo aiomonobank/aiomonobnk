@@ -1,18 +1,41 @@
 __all__ = [
-    'MonoPay',
-    'MonobankOpenAPI'
+    'MonoAcquiringAPI',
+    'MonobankOpenAPI',
+    'MonobankCorporateOpenAPI'
 ]
 
-from mbnk.api import MonoPayAPI, MonobankOpenAPI as MonobankAPI
+from mbnk.api import (
+    MonoAcquiringAPIModel,
+    MonobankOpenAPIModel,
+    MonobankCorporateOpenAPIModel
+)
 
 
-class MonoPay(MonoPayAPI):
+class MonoAcquiringAPI(MonoAcquiringAPIModel):
+    """
+    Synchronous version MonoAcquiringAPI
+    Source: https://api.monobank.ua/docs/acquiring.html
+    """
 
     def __init__(self, api_token: str):
         super().__init__(api_token=api_token, _async=False)
 
 
-class MonobankOpenAPI(MonobankAPI):
+class MonobankOpenAPI(MonobankOpenAPIModel):
+    """
+    Synchronous version MonobankOpenAPI
+    Source: https://api.monobank.ua/docs/
+    """
+
+    def __init__(self, api_token: str):
+        super().__init__(api_token=api_token, _async=False)
+
+
+class MonobankCorporateOpenAPI(MonobankCorporateOpenAPIModel):
+    """
+    Synchronous version MonobankCorporateOpenAPI
+    Source: https://api.monobank.ua/docs/corporate.html
+    """
 
     def __init__(self, api_token: str):
         super().__init__(api_token=api_token, _async=False)

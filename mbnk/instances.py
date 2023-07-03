@@ -1,10 +1,12 @@
 __all__ = [
-    # Monobank API Instances
+    # Monobank Open API Instances
     'CurrencyListItem',
     'Account',
     'Jar',
     'Transaction',
-    # MonoPay API Instances
+    # Monobank Corporate Open API Instances
+
+    # Mono Acquiring API Instances
     'QrListItem',
     'WalletItem',
     'CancelListItem',
@@ -16,7 +18,7 @@ from typing import List, Optional
 from dataclasses import dataclass
 
 
-# Monobank API Instances
+# Monobank Open API Instances
 @dataclass
 class CurrencyListItem:
     currency_code_a: int
@@ -73,9 +75,7 @@ class Transaction:
     counter_name: Optional[str] = None
 
 
-# MonoPay API Instances
-
-
+# Mono Acquiring API Instances
 @dataclass
 class QrListItem:
     short_qr_id: str
