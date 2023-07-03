@@ -1,21 +1,42 @@
 __all__ = [
-    # Monobank Open API Instances
+    # Monobank Open API Types
     'CurrencyListItem',
     'Account',
     'Jar',
     'Transaction',
-    # Monobank Corporate Open API Instances
 
-    # Mono Acquiring API Instances
+    # Monobank Corporate Open API Types
+
+    # Mono Acquiring API Types
     'QrListItem',
+    'Product',
+    'MerchantPaymInfo',
+    'SaveCardData',
     'WalletItem',
     'CancelListItem',
     'MerchantStatementItem'
 ]
 
+import json
 
-from typing import List, Optional
+from typing import List, Optional, Union
 from dataclasses import dataclass
+
+
+@dataclass
+class BaseType:
+    def export(self):
+        print(self.__annotations__)
+
+    def parse(self, data: Union[str, dict]):
+        if type(str):
+            data = json.loads(data)
+
+        for key, value in data.items():
+            print(key, value)
+            self.__dict__[key] = value
+
+        print(self.__dict__)
 
 
 # Monobank Open API Instances
@@ -76,6 +97,8 @@ class Transaction:
 
 
 # Mono Acquiring API Instances
+
+# Qr
 @dataclass
 class QrListItem:
     short_qr_id: str
@@ -84,9 +107,38 @@ class QrListItem:
     page_url: str
 
 
+# Invoice
 @dataclass
 class CanceledItem:
     pass
+
+
+@dataclass
+class Product(BaseType):
+    name: str
+    qty: float
+    sum: int
+    icon: Optional[str] = None
+    unit: Optional[str] = None
+    code: Optional[str] = None
+    barcode: Optional[str] = None
+    header: Optional[str] = None
+    footer: Optional[str] = None
+    tax: Optional[List[int]] = None
+    uktzed: Optional[str] = None
+
+
+@dataclass
+class MerchantPaymInfo(BaseType):
+    reference: str
+    destination: str
+    basketOrder: List[Product]
+
+
+@dataclass
+class SaveCardData(BaseType):
+    save_card: bool
+    wallet_id: Optional[str] = None
 
 
 @dataclass
@@ -99,6 +151,7 @@ class CancelListItem:
     rrn: Optional[str] = None
 
 
+# Merchant
 @dataclass
 class MerchantStatementItem:
     invoice_id: str
@@ -116,6 +169,7 @@ class MerchantStatementItem:
     short_qr_id: Optional[str] = None
 
 
+# Wallet
 @dataclass
 class WalletItem:
     card_token: str

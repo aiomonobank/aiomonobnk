@@ -8,6 +8,8 @@ import re
 import json
 import requests
 
+from enum import Enum
+
 from requests import Response
 from aiohttp import (
     ClientSession,
@@ -15,11 +17,9 @@ from aiohttp import (
 )
 from typing import Union, Optional
 
-from mbnk.enums import APIPaths
-
 from mbnk.exceptions import *
 
-from mbnk.instances import *
+from mbnk.types import *
 
 from mbnk.responses import *
 
@@ -154,7 +154,7 @@ class APIMethod:
                 response_data = self.__load_response(response_data)
 
                 if self.__is_exception(response):
-                    return MonoPayAPIException(**response_data)
+                    raise self.__get_exception(response)
 
                 return response_data
 
@@ -194,6 +194,46 @@ class APIMethod:
             return inner
 
         return outer
+
+
+class APIPaths(str, Enum):
+    # Mono Acquiring API
+    merchant_details = "merchant/details"
+    merchant_statement = "merchant/statement"
+    merchant_pubkey = "merchant/pubkey"
+
+    invoice_create = "merchant/invoice/create"
+    invoice_split = "merchant/invoice/split-payments"
+    invoice_cancel = "merchant/invoice/cancel"
+    invoice_status = "merchant/invoice/status"
+    invoice_invalidation = "merchant/invoice/remove"
+    invoice_info = "merchant/invoice/payment-info"
+    invoice_finalize = "merchant/invoice/finalize"
+
+    qr_list = "merchant/qr/list"
+    qr_details = "merchant/qr/details"
+    qr_reset_amount = "merchant/qr/reset-amount"
+
+    wallet_cards = "merchant/wallet"
+    wallet_payment = "merchant/wallet/payment"
+    wallet_delete_card = "merchant/wallet/card"
+
+    # Monobank Open API
+    currencies_list = "bank/currency"
+
+    personal_info = "personal/client-info"
+    personal_webhook = "personal/webhook"
+    personal_statement = "personal/statement/{account}/{from}/{to}"
+
+    # Monobank Corporate Open API
+    auth_registration = "personal/auth/registration"
+    auth_status = "personal/auth/registration/status"
+
+    corporate_webhook = "personal/corp/webhook"
+    corporate_info = "personal/corp/settings"
+
+    init_access = "personal/auth/request"
+    check_access = "personal/auth/request"
 
 
 # Monobank Open API
@@ -269,8 +309,8 @@ class MonobankOpenAPIModel:
     def __init__(self, api_token: str, _async: bool):
         self.__is_async = _async
 
-        self.__api_token__ = api_token
-        self.__headers["X-Token"] = self.__api_token__
+        self.__api_token = api_token
+        self.__headers["X-Token"] = self.__api_token
 
         self.public: Public = Public(
             api_token=self.__api_token,
@@ -284,21 +324,8 @@ class MonobankOpenAPIModel:
             _async=self.__is_async
         )
 
-
-class Corporate(APIMethod):
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        self.auth: Authorization = Authorization(*args, **kwargs)
-
-        self.client: Client = Client(*args, **kwargs)
-
-    def set_webhook(self):
-        pass
-
-    def info(self):
-        pass
+    def get_api_token(self):
+        return self.__api_token
 
 
 class Client(APIMethod):
@@ -341,12 +368,29 @@ class MonobankCorporateOpenAPIModel:
             _async=self.__is_async
         )
 
-        self.corporate: Corporate = Corporate(
+        self.auth: Authorization = Authorization(
             api_token=self.__api_token,
             base_url=self.__base_url,
             _async=self.__is_async
         )
 
+        self.client: Client = Client(
+            api_token=self.__api_token,
+            base_url=self.__base_url,
+            _async=self.__is_async
+        )
+
+    def set_webhook(self):
+        pass
+
+    def info(self):
+        pass
+
+    def set_api_token(self):
+        return self.__api_token
+
+    def get_api_token(self):
+        return self.__api_token
 
 
 # MonoPay
@@ -409,13 +453,13 @@ class Invoice(APIMethod):
             self,
             amount: int,
             ccy: Optional[int] = None,
-            merchant_paym_info: Optional = None,
+            merchant_paym_info: Optional[MerchantPaymInfo] = None,
             redirect_url: Optional[str] = None,
             web_hook_url: Optional[str] = None,
             validity: Optional[int] = None,
             payment_type: Optional[str] = None,
             qr_id: Optional = None,
-            save_card_data: Optional = None,
+            save_card_data: Optional[SaveCardData] = None,
             **kwargs
     ) -> Union[InvoiceCreatedResponse, MonoPayAPIException]:
         """

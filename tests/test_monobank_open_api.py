@@ -32,7 +32,7 @@ async def test_public_currency_async():
 
     currency_list = await mono.public.currency()
 
-    assert isinstance(currency_list, TooManyRequestsException)
+    assert isinstance(currency_list, CurrencyRatesResponse)
 
 
 def test_personal_info_sync():

@@ -28,15 +28,15 @@ from typing import List, Optional
 from dataclasses import dataclass
 
 # Monobank Open API Instances
-from mbnk.instances import CurrencyListItem
-from mbnk.instances import Account
-from mbnk.instances import Jar
-from mbnk.instances import Transaction
+from mbnk.types import CurrencyListItem
+from mbnk.types import Account
+from mbnk.types import Jar
+from mbnk.types import Transaction
 
 # MonoPay API Instances
-from mbnk.instances import QrListItem
-from mbnk.instances import MerchantStatementItem
-from mbnk.instances import WalletItem
+from mbnk.types import QrListItem
+from mbnk.types import MerchantStatementItem
+from mbnk.types import WalletItem
 
 
 @dataclass
