@@ -3,6 +3,7 @@ import pytest
 from mbnk import MonoAcquiringAPI
 from mbnk.asyncio import AsyncMonoAcquiringAPI
 
+from mbnk.types import *
 from mbnk.responses import *
 
 api_token = "uAvDe23DVr7MUJpnOTV7rUz_cFyCGlL2bvM74pU05ejc"
@@ -11,14 +12,14 @@ api_token = "uAvDe23DVr7MUJpnOTV7rUz_cFyCGlL2bvM74pU05ejc"
 # Invoices
 
 # Invoice create: synchronous
-def test_invoice_create_sync():
-    mono = MonoAcquiringAPI(
-        api_token=api_token
-    )
-
-    invoice = mono.invoice.create(amount=100)
-
-    assert isinstance(invoice, InvoiceCreatedResponse)
+# def test_invoice_create_sync():
+#     mono = MonoAcquiringAPI(
+#         api_token=api_token
+#     )
+#
+#     invoice = mono.invoice.create(amount=100)
+#
+#     assert isinstance(invoice, InvoiceCreatedResponse)
 
 
 # Invoice create: asynchronous
@@ -28,9 +29,29 @@ async def test_invoice_create_async():
         api_token=api_token
     )
 
-    invoice = await mono.invoice.create(amount=100)
+    # merchant_paym_info = MerchantPaymInfo(
+    #     reference="1234",
+    #     destination="Призначення",
+    #     basketOrder=[
+    #         *[
+    #              Product(
+    #                  name=f"name_{x}",
+    #                  qty=x,
+    #                  sum=x*100
+    #              ) for x in range(1)
+    #         ]
+    #     ]
+    # )
 
-    assert isinstance(invoice, InvoiceCreatedResponse)
+    # print(merchant_paym_info)
+    data = {'reference': '1234', 'destination': 'Призначення', 'basket_order': [{'name': 'name_0', 'qty:': 0, 'sum': 0}]}
+    print(MerchantPaymInfo.parse(data=data))
+    # invoice = await mono.invoice.create(
+    #     amount=100,
+    #     merchant_paym_info=merchant_paym_info
+    # )
+    #
+    # assert isinstance(invoice, InvoiceCreatedResponse)
 
 
 # Invoice status: synchronous

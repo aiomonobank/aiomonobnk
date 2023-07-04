@@ -26,17 +26,27 @@ from dataclasses import dataclass
 @dataclass
 class BaseType:
     def export(self):
-        print(self.__annotations__)
+        print(self.__dict__)
 
-    def parse(self, data: Union[str, dict]):
-        if type(str):
+    @classmethod
+    def load(cls, **data):
+        for key, value in data.items():
+            if value is list:
+                data[key] = cls.parse(value)
+            data[key] = value
+
+        return data
+
+    @classmethod
+    def parse(cls, data: Union[str, dict]):
+        if type(data) == str:
             data = json.loads(data)
 
-        for key, value in data.items():
-            print(key, value)
-            self.__dict__[key] = value
+        data = cls.load(**data)
 
-        print(self.__dict__)
+        return cls(**data)
+
+
 
 
 # Monobank Open API Instances
@@ -132,7 +142,7 @@ class Product(BaseType):
 class MerchantPaymInfo(BaseType):
     reference: str
     destination: str
-    basketOrder: List[Product]
+    basket_order: List[Product]
 
 
 @dataclass

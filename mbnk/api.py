@@ -279,7 +279,7 @@ class Personal(APIMethod):
         )
 
     @APIMethod._request("post", path=APIPaths.personal_webhook)
-    def set_webhook(self, web_hook_url: str) -> Union[EmptyResponse, MonobankAPIException]:
+    def set_web_hook(self, web_hook_url: str) -> Union[EmptyResponse, MonobankAPIException]:
         """
         Source: https://api.monobank.ua/docs/#tag/Kliyentski-personalni-dani/paths/~1personal~1webhook/post
 

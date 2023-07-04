@@ -1,6 +1,6 @@
 ## Вебхук
 
-#### Верифікації підпису webhook
+#### Верифікація підпису WebHook
 ```python
 from mbnk.utils.webhook import webhook_authentication
 
@@ -41,12 +41,12 @@ if webhook_authentication(
         x_sign_base64=x_sign_base64, 
         body_bytes=body_bytes
     ): 
-        print("Authenticated")
+    print("Authenticated")
 else:
     print("Failed to authenticate")
 
 ```
-
+### Оплати
 #### Створення рахунку
 
 ```python
@@ -87,4 +87,55 @@ response = monopay.invoice.status(invoice_id="<invoiceId>")
 
 ```python
 response = monopay.invoice.status(invoice_id="<invoiceId>")
+```
+
+### Qr-Каси
+
+#### Список QR-кас
+```python
+
+```
+
+#### Інформація про QR-касу
+```python
+
+```
+
+#### Видалення суми оплати
+```python
+
+```
+
+### Гаманець
+
+#### Список карток у гаманці
+```python
+
+```
+
+#### Оплата по токену
+```python
+
+```
+
+#### Видалення токенізованої картки
+```python
+
+```
+
+### Мерчант
+
+#### Дані мерчанта
+```python
+
+```
+
+#### Виписка за період
+```python
+
+```
+
+#### Відкритий ключ для верифікації підписів
+```python
+
 ```
