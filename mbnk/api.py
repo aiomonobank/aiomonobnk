@@ -4,11 +4,18 @@ __all__ = [
     'MonoAcquiringAPIModel'
 ]
 
+import base64
+import codecs
+
+import ecdsa
+import hashlib
+
 import re
 import json
 import requests
 
 from enum import Enum
+from datetime import datetime
 
 from requests import Response
 from aiohttp import (
@@ -32,13 +39,15 @@ class APIMethod:
     def __init__(
             self,
             base_url: str,
-            api_token: str,
             _async: bool,
+            api_token: Optional[str] = None,
     ):
         self.__is_async: bool = _async
-        self.__api_token: str = api_token
         self.__base_url: str = base_url
-        self.__headers["X-Token"] = self.__api_token
+
+        if api_token is not None:
+            self.__api_token: str = api_token
+            self.__headers["X-Token"] = self.__api_token
 
     @staticmethod
     def __camel_to_underscore(text: str):
@@ -120,6 +129,8 @@ class APIMethod:
             data: str = None,
             params: str = None
     ):
+        print(self.__headers)
+
         request = getattr(requests, method)
         response = request(
             url=f"{self.__base_url}/{path}",
@@ -157,6 +168,64 @@ class APIMethod:
                     raise self.__get_exception(response)
 
                 return response_data
+
+    @staticmethod
+    def _time_header():
+        def outer(func):
+            def inner(self):
+                self.__headers["X-Time"]: str = str(int(datetime.now().timestamp()))
+
+            return inner
+
+        return outer
+
+    @staticmethod
+    def _key_id_header():
+        def outer(func):
+            def inner(self):
+                self.__headers["X-Key-Id"]: str = self.__key_id
+
+            return inner
+
+        return outer
+
+    @staticmethod
+    def __generate_request_id():
+        request_id = ""
+        
+        return request_id
+
+    @staticmethod
+    def _request_id_header():
+        def outer(func):
+            def inner(self):
+                self.__headers["X-Request-Id"]: str = self.__generate_request_id()
+
+            return inner
+
+        return outer
+
+    @staticmethod
+    def __create_signature(self):
+        print(self.__headers)
+        url = "https://api.monobank.ua"
+        data = (self.__headers["X-Time"] + url).encode('utf-8')
+
+        private_key = ecdsa.SigningKey.from_pem(self.__privkey, hashfunc=hashlib.sha256)
+
+        sign = private_key.sign(data, hashfunc=hashlib.sha256)
+        sign_base64 = base64.b64encode(sign)
+
+        return sign_base64
+
+    @staticmethod
+    def _sign_header():
+        def outer(func):
+            def inner(self):
+                self.__headers["X-Sign"]: str = self.__create_signature(self)
+            return inner
+
+        return outer
 
     @staticmethod
     def _request(
@@ -303,28 +372,28 @@ class Personal(APIMethod):
 class MonobankOpenAPIModel:
 
     __base_url = "https://api.monobank.ua"
-    __api_token = None
-    __headers = {}
+    __is_async: bool = False
+    __api_token: str = None
 
-    def __init__(self, api_token: str, _async: bool):
+    def __init__(self, _async: bool, api_token: Optional[str] = None):
+
         self.__is_async = _async
-
         self.__api_token = api_token
-        self.__headers["X-Token"] = self.__api_token
 
-        self.public: Public = Public(
-            api_token=self.__api_token,
-            base_url=self.__base_url,
-            _async=self.__is_async
-        )
+        kwargs = {
+            'base_url': self.__base_url,
+            'api_token': self.__api_token,
+            '_async': self.__is_async
+        }
 
-        self.personal: Personal = Personal(
-            api_token=self.__api_token,
-            base_url=self.__base_url,
-            _async=self.__is_async
-        )
+        self.public: Public = Public(**kwargs)
 
-    def get_api_token(self):
+        self.personal: Personal = Personal(**kwargs)
+
+    def set_api_token(self, api_token: str):
+        self.__api_token: str = api_token
+
+    def get_api_token(self) -> str:
         return self.__api_token
 
 
@@ -353,44 +422,53 @@ class Authorization(APIMethod):
 class MonobankCorporateOpenAPIModel:
 
     __base_url: str = "https://api.monobank.ua"
-    __api_token: str = None
     __headers: dict = {}
 
-    def __init__(self, api_token: str, _async: bool):
+    __key_id: str = None
+
+    __priv_key: str = None
+    __pub_key: str = None
+
+    def __init__(self, _async: bool):
         self.__is_async: bool = _async
 
-        self.__api_token: str = api_token
-        self.__headers["X-Token"] = self.__api_token__
-
         self.public: Public = Public(
-            api_token=self.__api_token,
             base_url=self.__base_url,
             _async=self.__is_async
         )
 
         self.auth: Authorization = Authorization(
-            api_token=self.__api_token,
             base_url=self.__base_url,
             _async=self.__is_async
         )
 
         self.client: Client = Client(
-            api_token=self.__api_token,
             base_url=self.__base_url,
             _async=self.__is_async
         )
 
-    def set_webhook(self):
+    def set_web_hook(self):
         pass
 
     def info(self):
         pass
 
-    def set_api_token(self):
-        return self.__api_token
+    def set_key_id(self, key_id: str):
+        self.__key_id: str = key_id
 
-    def get_api_token(self):
-        return self.__api_token
+    def set_priv_key(self, priv_key_path: str):
+        with codecs.open(priv_key_path, 'r', 'utf-8') as f:
+            priv_key = f.read()
+            f.close()
+
+        self.__priv_key = priv_key
+
+    def set_pub_key(self, pub_key_path: str):
+        with codecs.open(pub_key_path, 'r', 'utf-8') as f:
+            pub_key = f.read()
+            f.close()
+
+        self.__pub_key = pub_key
 
 
 # MonoPay

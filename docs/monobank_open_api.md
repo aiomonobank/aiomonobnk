@@ -8,9 +8,7 @@
 import os
 from mbnk import MonobankOpenAPI
 
-mono = MonobankOpenAPI(
-    api_token=os.getenv("MONOBANK_API_TOKEN")
-)
+mono = MonobankOpenAPI()
 
 currency_list = mono.public.currency()
 ```

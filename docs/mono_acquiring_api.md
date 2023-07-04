@@ -1,4 +1,7 @@
-## Вебхук
+## Mono Acquiring API
+Official Docs: https://api.monobank.ua/docs/acquiring.html
+
+### Вебхук
 
 #### Верифікація підпису WebHook
 ```python
@@ -51,11 +54,13 @@ else:
 
 ```python
 import os
-from mbnk import MonoPay
+from mbnk import MonoAcquiringAPI
 
-monopay = MonoPay(api_token=os.getenv('MONOPAY_API_TOKEN'))
+mono = MonoAcquiringAPI(
+    api_token=os.getenv('MONOBANK_API_TOKEN')
+)
 
-response = monopay.invoice.create(amount=100)
+response = mono.invoice.create(amount=100)
 
 ```
 
@@ -132,10 +137,25 @@ response = monopay.invoice.status(invoice_id="<invoiceId>")
 
 #### Виписка за період
 ```python
+import os 
+from mbnk import MonoAcquiringAPI
 
+mono = MonoAcquiringAPI(
+    api_token=os.getenv("MONO_ACQUIRING_TOKEN")
+)
+
+merchant_statement = mono.merchant.statement()
 ```
 
 #### Відкритий ключ для верифікації підписів
 ```python
+import os 
+from mbnk import MonoAcquiringAPI
 
+mono = MonoAcquiringAPI(
+    api_token=os.getenv("MONOBANK_API_TOKEN")
+)
+
+response = mono.merchant.pubkey()
+pubkey = response.key
 ```

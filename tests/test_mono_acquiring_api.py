@@ -1,4 +1,7 @@
+import os
 import pytest
+
+from dotenv import load_dotenv
 
 from mbnk import MonoAcquiringAPI
 from mbnk.asyncio import AsyncMonoAcquiringAPI
@@ -6,7 +9,7 @@ from mbnk.asyncio import AsyncMonoAcquiringAPI
 from mbnk.types import *
 from mbnk.responses import *
 
-api_token = "uAvDe23DVr7MUJpnOTV7rUz_cFyCGlL2bvM74pU05ejc"
+load_dotenv(dotenv_path=os.path.abspath('.env'))
 
 
 # Invoices
@@ -26,7 +29,7 @@ api_token = "uAvDe23DVr7MUJpnOTV7rUz_cFyCGlL2bvM74pU05ejc"
 @pytest.mark.asyncio
 async def test_invoice_create_async():
     mono = AsyncMonoAcquiringAPI(
-        api_token=api_token
+        api_token=os.getenv("TEST_MONOBANK_API_TOKEN")
     )
 
     # merchant_paym_info = MerchantPaymInfo(

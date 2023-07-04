@@ -4,6 +4,8 @@ __all__ = [
     'MonobankCorporateOpenAPI'
 ]
 
+from typing import Optional
+
 from mbnk.api import (
     MonoAcquiringAPIModel,
     MonobankOpenAPIModel,
@@ -27,7 +29,7 @@ class MonobankOpenAPI(MonobankOpenAPIModel):
     Source: https://api.monobank.ua/docs/
     """
 
-    def __init__(self, api_token: str):
+    def __init__(self, api_token: Optional[str] = None):
         super().__init__(api_token=api_token, _async=False)
 
 

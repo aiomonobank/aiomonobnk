@@ -3,10 +3,8 @@ import pytest
 
 from dotenv import load_dotenv
 
-from mbnk import (
-    MonobankOpenAPI,
-    AsyncMonobankOpenAPI
-)
+from mbnk import MonobankOpenAPI
+from mbnk.asyncio import AsyncMonobankOpenAPI
 
 from mbnk.responses import *
 from mbnk.exceptions import *
@@ -15,9 +13,7 @@ load_dotenv(dotenv_path=os.path.abspath('.env'))
 
 
 def test_public_currency_sync():
-    mono = MonobankOpenAPI(
-        api_token=os.getenv("TEST_MONOBANK_API_TOKEN")
-    )
+    mono = MonobankOpenAPI()
 
     currency_list = mono.public.currency()
 
@@ -26,9 +22,7 @@ def test_public_currency_sync():
 
 @pytest.mark.asyncio
 async def test_public_currency_async():
-    mono = AsyncMonobankOpenAPI(
-        api_token=os.getenv("TEST_MONOBANK_API_TOKEN")
-    )
+    mono = AsyncMonobankOpenAPI()
 
     currency_list = await mono.public.currency()
 
@@ -36,7 +30,13 @@ async def test_public_currency_async():
 
 
 def test_personal_info_sync():
-    pass
+    mono = MonobankOpenAPI(
+        api_token=os.getenv("TEST_MONOBANK_API_TOKEN")
+    )
+
+    client_info = mono.personal.info()
+
+    print(client_info)
 
 
 @pytest.mark.asyncio
