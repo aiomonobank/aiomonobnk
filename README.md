@@ -29,7 +29,7 @@ https://github.com/yeghorkikhai/mbnk
 pip install mbnk
 ```
 
-### Let's start with Monobank Open API
+### Get Started with Monobank Open API
 
 <b>Async example:</b>
 ```python
@@ -40,7 +40,7 @@ from mbnk.asyncio import AsyncMonobankOpenAPI
 async def main():
     async_mono = AsyncMonobankOpenAPI(api_token=os.getenv("MONOBANK_API_TOKEN"))
     
-    currency = await async_mono.public.currency()
+    currency_list = await async_mono.public.currency()
     
 if __name__ == "__main__":
     asyncio.run(main())
