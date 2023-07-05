@@ -94,11 +94,11 @@ class Account(BaseType):
     send_id: str
     balance: int
     credit_limit: int
-    type: str
-    currency_code: int
+    type: AccountType
+    currency_code: CurrencyCode
     masked_pan: List[str]
     iban: str
-    cashback_type: Optional[str] = None
+    cashback_type: Optional[CashbackType] = None
 
 
 @dataclass
@@ -107,7 +107,7 @@ class Jar(BaseType):
     send_id: str
     title: str
     description: str
-    currency_code: int
+    currency_code: CurrencyCode
     balance: int
     goal: int
 
@@ -122,7 +122,7 @@ class Transaction(BaseType):
     hold: bool
     amount: int
     operation_amount: int
-    currency_code: int
+    currency_code: CurrencyCode
     commission_rate: int
     cashback_amount: int
     balance: int
@@ -176,7 +176,14 @@ class QrDetails:
 # Invoice
 @dataclass
 class CanceledItem(BaseType):
-    pass
+    status: CancellationStatus
+    created_date: str
+    modified_date: str
+    amount: Optional[int] = None
+    ccy: Optional[CurrencyCode] = None
+    approval_code: Optional[str] = None
+    rrn: Optional[str] = None
+    ext_ref: Optional[str] = None
 
 
 @dataclass
@@ -193,13 +200,43 @@ class InvoiceCanceled:
 
 
 @dataclass
+class WalletData:
+    card_token: str
+    wallet_id: str
+    status: TokenizedCardStatus
+
+
+@dataclass
 class InvoiceStatus:
-    pass
+    invoice_id: str
+    status: TransactionStatus
+    amount: int
+    ccy: CurrencyCode
+    failure_reason: Optional[str] = None
+    final_amount: Optional[int] = None
+    created_date: Optional[str] = None
+    modified_date: Optional[str] = None
+    reference: Optional[str] = None
+    cancel_list: Optional[CanceledItem] = None
+    wallet_data: Optional[WalletData] = None
 
 
 @dataclass
 class InvoiceInfo:
-    pass
+    masked_pan: str
+    approval_code: str
+    rrn: str
+    amount: int
+    ccy: CurrencyCode
+    final_amount: int
+    terminal: str
+    payment_scheme: PaymentScheme
+    payment_method: PaymentMethod
+    domestic_card: bool
+    country: str
+    created_date = Optional[str] = None
+    fee: Optional[int] = None
+    cancel_list: Optional[CanceledItem] = None
 
 
 @dataclass
@@ -238,7 +275,7 @@ class SaveCardData(BaseType):
 @dataclass
 class CancelListItem(BaseType):
     amount: int
-    ccy: int
+    ccy: CurrencyCode
     date: str
     masked_pan: str
     approval_code: Optional[str] = None
@@ -252,9 +289,9 @@ class MerchantStatementItem(BaseType):
     status: str
     masked_pan: str
     date: str
-    payment_scheme: str
+    payment_scheme: PaymentScheme
     amount: int
-    ccy: int
+    ccy: CurrencyCode
     profit: Optional[int] = None
     approval_code: Optional[str] = None
     reference: Optional[str] = None

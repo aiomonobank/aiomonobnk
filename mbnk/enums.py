@@ -25,7 +25,7 @@ class AmountType(str, Enum):
     fix = "fix"
 
 
-class InvoiceStatus(str, Enum):
+class TransactionStatus(str, Enum):
     created = "created"
     processing = "processing"
     hold = "hold"

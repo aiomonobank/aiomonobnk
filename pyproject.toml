@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "mbnk"
-version = "0.2.0a2"
+version = "0.2.1"
 description = "Sync/Async version monobank api"
 authors = ["yeghorkikhai <yeghorkikhai@gmail.com>"]
 license = "MIT"
