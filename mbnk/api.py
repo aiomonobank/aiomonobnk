@@ -214,7 +214,6 @@ class APIMethod:
 
     @staticmethod
     def __create_signature(self):
-        print(self.__headers)
         url = "https://api.monobank.ua"
         data = (self.__headers["X-Time"] + url).encode('utf-8')
 
