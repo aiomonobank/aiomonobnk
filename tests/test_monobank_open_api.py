@@ -6,8 +6,6 @@ from dotenv import load_dotenv
 from mbnk import MonobankOpenAPI
 from mbnk.asyncio import AsyncMonobankOpenAPI
 
-from mbnk.responses import *
-from mbnk.exceptions import *
 from mbnk.types import *
 
 load_dotenv(dotenv_path=os.path.abspath('.env'))
@@ -16,18 +14,18 @@ load_dotenv(dotenv_path=os.path.abspath('.env'))
 def test_public_currency_sync():
     mono = MonobankOpenAPI()
 
-    currency_list = mono.public.currency()
+    currencies = mono.public.currency()
 
-    assert isinstance(currency_list, CurrencyList)
+    assert isinstance(currencies, CurrencyList)
 
 
 @pytest.mark.asyncio
 async def test_public_currency_async():
     mono = AsyncMonobankOpenAPI()
 
-    currency_list = await mono.public.currency()
+    currencies = await mono.public.currency()
 
-    assert isinstance(currency_list, CurrencyList)
+    assert isinstance(currencies, CurrencyList)
 
 
 def test_personal_info_sync():
@@ -37,7 +35,7 @@ def test_personal_info_sync():
 
     client_info = mono.personal.info()
 
-    print(client_info)
+    assert isinstance(client_info, ClientInfo)
 
 
 @pytest.mark.asyncio

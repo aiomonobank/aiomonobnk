@@ -36,6 +36,7 @@ import json
 
 from typing import List, Optional, Union
 from dataclasses import dataclass
+from mbnk.enums import *
 
 
 @dataclass
@@ -73,8 +74,8 @@ class BaseType:
 # Public
 @dataclass
 class CurrencyListItem(BaseType):
-    currency_code_a: int
-    currency_code_b: int
+    currency_code_a: CurrencyCode
+    currency_code_b: CurrencyCode
     date: int
     rate_sell: float
     rate_buy: float
@@ -155,7 +156,7 @@ class Statement:
 class QrListItem(BaseType):
     short_qr_id: str
     qr_id: str
-    amount_type: str
+    amount_type: AmountType
     page_url: str
 
 
