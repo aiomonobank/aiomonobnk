@@ -29,51 +29,32 @@ https://github.com/yeghorkikhai/mbnk
 pip install mbnk
 ```
 
-### Getting Started Monobank Open API
+### Let's start with Monobank Open API
 
+<b>Async example:</b>
 ```python
-# Sync Version Monobank API
-import os
-from mbnk import Monobank
-
-# Your Monobank API token 
-api_token = os.getenv('<X-Token>')
-
-mbnk = Monobank(api_token=api_token)
-
-#Get currencies rates list
-currencies_list = mbnk.public.currency_rates()
-
-# Async Version Monobank API
 import os
 import asyncio
-from mbnk.asyncio import AsyncMonobank
-
-# Your Monobank API token 
-api_token = os.getenv('<X-Token>')
-
+from mbnk.asyncio import AsyncMonobankOpenAPI
 
 async def main():
-    async_mbnk = AsyncMonobank(api_token=api_token)
+    async_mono = AsyncMonobankOpenAPI(api_token=os.getenv("MONOBANK_API_TOKEN"))
     
-    currencies_list = await mbnk.public.currency_rates()
-
+    currency = await async_mono.public.currency()
     
 if __name__ == "__main__":
     asyncio.run(main())
-
 ```
 
+<b>Sync example:</b>
 ```python
+import os
+from mbnk import MonobankOpenAPI
 
-#Get Client Info
-client_info = mbnk.personal.info()
+mono = MonobankOpenAPI(
+    api_token=os.getenv("MONOBANK_API_TOKEN")
+)
 
-#Setup webhook url
-WEB_HOOK_URL = 'https://example.com/webhook/endpoint'
-mbnk.personal.set_webhook(web_hook_url=WEB_HOOK_URL)
-
-#Get statement
-from_timestamp = (datetime.now() + timedelta(days=-31)).timestamp()
-statement = mbnk.personal.statement(from_date=int(from_timestamp))
+#Get currencies rates list
+currency_list = mono.public.currency()
 ```

@@ -1,5 +1,5 @@
 ## Mono Acquiring API
-Official Docs: https://api.monobank.ua/docs/acquiring.html
+Офіційна документація: https://api.monobank.ua/docs/acquiring.html
 
 ### Вебхук
 
@@ -67,72 +67,156 @@ response = mono.invoice.create(amount=100)
 #### Статус рахунку
 
 ```python
+import os
+from mbnk import MonoAcquiringAPI
+
+mono = MonoAcquiringAPI(
+    api_token=os.getenv("MONOBANK_API_TOKEN")
+)
+
 response = monopay.invoice.status(invoice_id="<invoiceId>")
 ```
 
 #### Розширена інформація про успішну оплату
 
 ```python
+import os
+from mbnk import MonoAcquiringAPI
+
+mono = MonoAcquiringAPI(
+    api_token=os.getenv("MONOBANK_API_TOKEN")
+)
+
 response = monopay.invoice.info(invoice_id="<invoiceId>")
 ```
 
 #### Invoice Status
 
 ```python
+import os
+from mbnk import MonoAcquiringAPI
+
+mono = MonoAcquiringAPI(
+    api_token=os.getenv("MONOBANK_API_TOKEN")
+)
+
 response = monopay.invoice.status(invoice_id="<invoiceId>")
 ```
 
 #### Invoice Status
 
 ```python
+import os
+from mbnk import MonoAcquiringAPI
+
+mono = MonoAcquiringAPI(
+    api_token=os.getenv("MONOBANK_API_TOKEN")
+)
+
 response = monopay.invoice.status(invoice_id="<invoiceId>")
 ```
 
 #### Invoice Status
 
 ```python
-response = monopay.invoice.status(invoice_id="<invoiceId>")
+import os
+from mbnk import MonoAcquiringAPI
+
+mono = MonoAcquiringAPI(
+    api_token=os.getenv("MONOBANK_API_TOKEN")
+)
+
+response = mono.invoice.status(invoice_id="<invoiceId>")
 ```
 
 ### Qr-Каси
 
 #### Список QR-кас
 ```python
+import os
+from mbnk import MonoAcquiringAPI
 
+mono = MonoAcquiringAPI(
+    api_token=os.getenv("MONOBANK_API_TOKEN")
+)
+
+qr_list = mono.qr.list()
 ```
 
 #### Інформація про QR-касу
 ```python
+import os
+from mbnk import MonoAcquiringAPI
 
+mono = MonoAcquiringAPI(
+    api_token=os.getenv("MONOBANK_API_TOKEN")
+)
+
+qr_details = mono.qr.details(qr_id="qrId")
 ```
 
 #### Видалення суми оплати
 ```python
+import os
+from mbnk import MonoAcquiringAPI
 
+mono = MonoAcquiringAPI(
+    api_token=os.getenv("MONOBANK_API_TOKEN")
+)
+
+response = mono.qr.reset_amount(qr_id="<qrId>")
 ```
 
 ### Гаманець
 
 #### Список карток у гаманці
 ```python
+import os
+from mbnk import MonoAcquiringAPI
 
+mono = MonoAcquiringAPI(
+    api_token=os.getenv("MONOBANK_API_TOKEN")
+)
+
+response = mono.wallet.cards()
 ```
 
 #### Оплата по токену
 ```python
+import os
+from mbnk import MonoAcquiringAPI
 
+mono = MonoAcquiringAPI(
+    api_token=os.getenv("MONOBANK_API_TOKEN")
+)
+
+response = mono.wallet.payment()
 ```
 
 #### Видалення токенізованої картки
 ```python
+import os
+from mbnk import MonoAcquiringAPI
 
+mono = MonoAcquiringAPI(
+    api_token=os.getenv("MONOBANK_API_TOKEN")
+)
+
+response = mono.wallet.delete_card(wallet_id="<walletId>")
 ```
 
 ### Мерчант
 
 #### Дані мерчанта
 ```python
+import os
+from mbnk import MonoAcquiringAPI
 
+mono = MonoAcquiringAPI(
+    api_token=os.getenv("MONOBANK_API_TOKEN")
+)
+
+merchant_details = mono.merchant.details()
 ```
 
 #### Виписка за період
@@ -141,7 +225,7 @@ import os
 from mbnk import MonoAcquiringAPI
 
 mono = MonoAcquiringAPI(
-    api_token=os.getenv("MONO_ACQUIRING_TOKEN")
+    api_token=os.getenv("MONOBANK_API_TOKEN")
 )
 
 merchant_statement = mono.merchant.statement()
