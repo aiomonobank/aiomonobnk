@@ -4,19 +4,34 @@ __all__ = [
     'Account',
     'Jar',
     'Transaction',
+    'CurrencyList',
+    'ClientInfo',
+    'Statement',
 
     # Monobank Corporate Open API Types
 
     # Mono Acquiring API Types
     'QrListItem',
+    'QrList',
+    'QrDetails',
+    'InvoiceCreated',
+    'InvoiceCanceled',
+    'InvoiceStatus',
+    'InvoiceInfo',
+    'FinalizeInvoice',
     'Product',
     'MerchantPaymInfo',
     'SaveCardData',
-    'WalletItem',
     'CancelListItem',
-    'MerchantStatementItem'
+    'WalletItem',
+    'WalletCards',
+    'MerchantStatementItem',
+    'MerchantDetails',
+    'MerchantStatement',
+    'MerchantPubKey'
 ]
 
+import dataclasses
 import json
 
 from typing import List, Optional, Union
@@ -26,15 +41,19 @@ from dataclasses import dataclass
 @dataclass
 class BaseType:
     def export(self):
-        print(self.__dict__)
+        data = {}
+        for key in self.__dict__:
+            if self.__dict__[key] is None:
+                continue
 
-    @classmethod
-    def load(cls, **data):
-        for key, value in data.items():
-            if value is list:
-                data[key] = cls.parse(value)
-            data[key] = value
-
+            if type(self.__dict__[key]) == list:
+                data[key] = [
+                    (
+                        item.export() if dataclasses.is_dataclass(item) else item
+                    ) for item in self.__dict__[key]
+                ]
+            else:
+                data[key] = self.__dict__[key]
         return data
 
     @classmethod
@@ -42,16 +61,18 @@ class BaseType:
         if type(data) == str:
             data = json.loads(data)
 
-        data = cls.load(**data)
+        for field, field_type in cls.__annotations__.items():
+            if "__origin__" in field_type.__dict__ and field_type.__dict__["__origin__"] == list:
+                data[field] = [field_type.__args__[0].parse(item) for item in data[field]]
 
         return cls(**data)
 
 
+# Monobank Open API Types
 
-
-# Monobank Open API Instances
+# Public
 @dataclass
-class CurrencyListItem:
+class CurrencyListItem(BaseType):
     currency_code_a: int
     currency_code_b: int
     date: int
@@ -61,7 +82,13 @@ class CurrencyListItem:
 
 
 @dataclass
-class Account:
+class CurrencyList:
+    list: List[CurrencyListItem]
+
+
+# Personal
+@dataclass
+class Account(BaseType):
     id: str
     send_id: str
     balance: int
@@ -74,7 +101,7 @@ class Account:
 
 
 @dataclass
-class Jar:
+class Jar(BaseType):
     id: str
     send_id: str
     title: str
@@ -85,7 +112,7 @@ class Jar:
 
 
 @dataclass
-class Transaction:
+class Transaction(BaseType):
     id: str
     time: int
     description: str
@@ -106,21 +133,77 @@ class Transaction:
     counter_name: Optional[str] = None
 
 
-# Mono Acquiring API Instances
+@dataclass
+class ClientInfo:
+    client_id: str
+    name: str
+    web_hook_url: str
+    permissions: str
+    accounts: List[Account]
+    jars: List[Jar]
+
+
+@dataclass
+class Statement:
+    list: List[Transaction]
+
+
+# Mono Acquiring API
 
 # Qr
 @dataclass
-class QrListItem:
+class QrListItem(BaseType):
     short_qr_id: str
     qr_id: str
     amount_type: str
     page_url: str
 
 
+@dataclass
+class QrList:
+    list: List[QrListItem]
+
+
+@dataclass
+class QrDetails:
+    short_qr_id: str
+    invoice_id: Optional[str]
+    amount: Optional[int]
+    ccy: Optional[int]
+
+
 # Invoice
 @dataclass
-class CanceledItem:
+class CanceledItem(BaseType):
     pass
+
+
+@dataclass
+class InvoiceCreated:
+    invoice_id: str
+    page_url: str
+
+
+@dataclass
+class InvoiceCanceled:
+    status: str
+    created_date: str
+    modified_date: str
+
+
+@dataclass
+class InvoiceStatus:
+    pass
+
+
+@dataclass
+class InvoiceInfo:
+    pass
+
+
+@dataclass
+class FinalizeInvoice:
+    status: str
 
 
 @dataclass
@@ -152,7 +235,7 @@ class SaveCardData(BaseType):
 
 
 @dataclass
-class CancelListItem:
+class CancelListItem(BaseType):
     amount: int
     ccy: int
     date: str
@@ -163,7 +246,7 @@ class CancelListItem:
 
 # Merchant
 @dataclass
-class MerchantStatementItem:
+class MerchantStatementItem(BaseType):
     invoice_id: str
     status: str
     masked_pan: str
@@ -179,10 +262,30 @@ class MerchantStatementItem:
     short_qr_id: Optional[str] = None
 
 
+@dataclass
+class MerchantDetails(BaseType):
+    merchant_id: str
+    merchant_name: str
+
+
+@dataclass
+class MerchantStatement(BaseType):
+    list: List[MerchantStatementItem]
+
+
+@dataclass
+class MerchantPubKey(BaseType):
+    key: str
+
+
 # Wallet
 @dataclass
-class WalletItem:
+class WalletItem(BaseType):
     card_token: str
     masked_pan: str
     country: Optional[str] = None
 
+
+@dataclass
+class WalletCards(BaseType):
+    wallets: List[WalletItem]

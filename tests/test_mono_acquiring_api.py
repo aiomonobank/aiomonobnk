@@ -32,29 +32,27 @@ async def test_invoice_create_async():
         api_token=os.getenv("TEST_MONOBANK_API_TOKEN")
     )
 
-    # merchant_paym_info = MerchantPaymInfo(
-    #     reference="1234",
-    #     destination="Призначення",
-    #     basketOrder=[
-    #         *[
-    #              Product(
-    #                  name=f"name_{x}",
-    #                  qty=x,
-    #                  sum=x*100
-    #              ) for x in range(1)
-    #         ]
-    #     ]
-    # )
+    merchant_paym_info = MerchantPaymInfo(
+        reference="1234",
+        destination="Призначення",
+        basket_order=[
+            *[
+                 Product(
+                     name=f"name_{x}",
+                     qty=x,
+                     sum=x*100
+                 ) for x in range(1, 2)
+            ]
+        ]
+    )
 
-    # print(merchant_paym_info)
-    data = {'reference': '1234', 'destination': 'Призначення', 'basket_order': [{'name': 'name_0', 'qty:': 0, 'sum': 0}]}
-    print(MerchantPaymInfo.parse(data=data))
-    # invoice = await mono.invoice.create(
-    #     amount=100,
-    #     merchant_paym_info=merchant_paym_info
-    # )
-    #
-    # assert isinstance(invoice, InvoiceCreatedResponse)
+    invoice = await mono.invoice.create(
+        amount=100,
+        merchant_paym_info=merchant_paym_info
+    )
+
+    print(invoice)
+    assert isinstance(invoice, InvoiceCreated)
 
 
 # Invoice status: synchronous

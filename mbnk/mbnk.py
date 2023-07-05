@@ -39,5 +39,5 @@ class MonobankCorporateOpenAPI(MonobankCorporateOpenAPIModel):
     Source: https://api.monobank.ua/docs/corporate.html
     """
 
-    def __init__(self, api_token: str):
-        super().__init__(api_token=api_token, _async=False)
+    def __init__(self):
+        super().__init__(_async=False)

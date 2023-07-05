@@ -30,6 +30,8 @@ from mbnk.types import *
 
 from mbnk.responses import *
 
+import dataclasses
+
 
 class APIMethod:
 
@@ -83,8 +85,15 @@ class APIMethod:
         for kwarg in kwargs:
             key = kwarg.replace("timestamp", "")
             key = self.__underscore_to_camel(key)
+
             value = kwargs.get(kwarg)
-            data[key] = value
+
+            if dataclasses.is_dataclass(value):
+                data[key] = value.export()
+            else:
+                data[key] = value
+
+        data = self.__json_convert(data, self.__underscore_to_camel)
 
         return data
 
@@ -129,8 +138,6 @@ class APIMethod:
             data: str = None,
             params: str = None
     ):
-        print(self.__headers)
-
         request = getattr(requests, method)
         response = request(
             url=f"{self.__base_url}/{path}",
@@ -192,7 +199,7 @@ class APIMethod:
     @staticmethod
     def __generate_request_id():
         request_id = ""
-        
+
         return request_id
 
     @staticmethod
@@ -309,9 +316,9 @@ class APIPaths(str, Enum):
 class Public(APIMethod):
 
     @APIMethod._request("get", path=APIPaths.currencies_list)
-    def currency(self, **kwargs) -> Union[CurrencyRatesResponse, MonobankAPIException]:
+    def currency(self, **kwargs) -> Union[CurrencyList, MonobankAPIException]:
 
-        return CurrencyRatesResponse(
+        return CurrencyList(
             list=[
                 CurrencyListItem(
                     **item
@@ -323,14 +330,14 @@ class Public(APIMethod):
 class Personal(APIMethod):
 
     @APIMethod._request("get", path=APIPaths.personal_info)
-    def info(self, **kwargs) -> Union[ClientInfoResponse, MonobankAPIException]:
+    def info(self, **kwargs) -> Union[ClientInfo, MonobankAPIException]:
         """
         Source: https://api.monobank.ua/docs/#tag/Kliyentski-personalni-dani/paths/~1personal~1client-info/get
 
         :return:
         """
 
-        return ClientInfoResponse(
+        return ClientInfo(
             client_id=kwargs['response_data']['client_id'],
             name=kwargs['response_data']['name'],
             web_hook_url=kwargs['response_data']['web_hook_url'],
@@ -358,9 +365,9 @@ class Personal(APIMethod):
         return EmptyResponse()
 
     @APIMethod._request("get", path=APIPaths.personal_statement)
-    def statement(self, **kwargs) -> Union[StatementResponse, MonobankAPIException]:
+    def statement(self, **kwargs) -> Union[Statement, MonobankAPIException]:
 
-        return StatementResponse(
+        return Statement(
             list=[
                 Transaction(
                     **transaction
@@ -475,14 +482,14 @@ class MonobankCorporateOpenAPIModel:
 class Merchant(APIMethod):
 
     @APIMethod._request("get", path=APIPaths.merchant_details)
-    def details(self, **kwargs) -> Union[MerchantDetailsResponse, MonoPayAPIException]:
+    def details(self, **kwargs) -> Union[MerchantDetails, MonoPayAPIException]:
         """
         Mono Acquiring API: https://api.monobank.ua/docs/acquiring.html#/paths/~1api~1merchant~1details/get
 
         :return: MerchantDetailsResponse
         """
 
-        return MerchantDetailsResponse(**kwargs["response_data"])
+        return MerchantDetails(**kwargs["response_data"])
 
     @APIMethod._request("get", path=APIPaths.merchant_statement)
     def statement(
@@ -490,7 +497,7 @@ class Merchant(APIMethod):
             from_timestamp: int,
             to_timestamp: Optional[int] = None,
             **kwargs
-    ) -> Union[MerchantStatementResponse, MonoPayAPIException]:
+    ) -> Union[MerchantStatement, MonoPayAPIException]:
         """
         Mono Acquiring API: https://api.monobank.ua/docs/acquiring.html#/paths/~1api~1merchant~1statement/get
 
@@ -500,7 +507,7 @@ class Merchant(APIMethod):
         :return:
         """
 
-        return MerchantStatementResponse(
+        return MerchantStatement(
             list=[
                 MerchantStatementItem(
                     **statement_item,
@@ -514,14 +521,14 @@ class Merchant(APIMethod):
         )
 
     @APIMethod._request("get", path=APIPaths.merchant_pubkey)
-    def pubkey(self, **kwargs) -> Union[MerchantPubKeyResponse, MonoPayAPIException]:
+    def pubkey(self, **kwargs) -> Union[MerchantPubKey, MonoPayAPIException]:
         """
         Mono Acquiring API Docs: https://api.monobank.ua/docs/acquiring.html#/paths/~1api~1merchant~1pubkey/get
 
         :return: MerchantPubKeyResponse
         """
 
-        return MerchantPubKeyResponse(**kwargs["response_data"])
+        return MerchantPubKey(**kwargs["response_data"])
 
 
 class Invoice(APIMethod):
@@ -539,7 +546,7 @@ class Invoice(APIMethod):
             qr_id: Optional = None,
             save_card_data: Optional[SaveCardData] = None,
             **kwargs
-    ) -> Union[InvoiceCreatedResponse, MonoPayAPIException]:
+    ) -> Union[InvoiceCreated, MonoPayAPIException]:
         """
         Mono Acquiring API: https://api.monobank.ua/docs/acquiring.html#/paths/~1api~1merchant~1invoice~1create/post
 
@@ -555,23 +562,7 @@ class Invoice(APIMethod):
         :return:
         """
 
-        return InvoiceCreatedResponse(**kwargs['response_data'])
-
-    @APIMethod._request("post", path=APIPaths.invoice_split)
-    def split(
-            self,
-            invoice_id: str,
-            **kwargs
-    ) -> Union[SplitInvoiceResponse, MonoPayAPIException]:
-        """
-        Mono Acquiring API:
-
-        :param invoice_id:
-        :param kwargs:
-        :return:
-        """
-
-        return SplitInvoiceResponse(**kwargs['response_data'])
+        return InvoiceCreated(**kwargs['response_data'])
 
     @APIMethod._request("post", path=APIPaths.invoice_cancel)
     def cancel(
@@ -581,7 +572,7 @@ class Invoice(APIMethod):
             amount: int = None,
             items=None,
             **kwargs
-    ) -> Union[InvoiceCanceledResponse, MonoPayAPIException]:
+    ) -> Union[InvoiceCanceled, MonoPayAPIException]:
         """
         Mono Acquiring API: https://api.monobank.ua/docs/acquiring.html#/paths/~1api~1merchant~1invoice~1cancel/post
 
@@ -592,13 +583,13 @@ class Invoice(APIMethod):
         :param kwargs:
         :return:
         """
-        return InvoiceCanceledResponse(**kwargs['response_data'])
+        return InvoiceCanceled(**kwargs['response_data'])
 
     def status(
             self,
             invoice_id: str,
             **kwargs
-    ) -> Union[InvoiceStatusResponse, MonoPayAPIException]:
+    ) -> Union[InvoiceStatus, MonoPayAPIException]:
         """
         Mono Acquiring API: https://api.monobank.ua/docs/acquiring.html#/paths/~1api~1merchant~1invoice~1status?invoiceId=%7BinvoiceId%7D/get
 
@@ -630,7 +621,7 @@ class Invoice(APIMethod):
             self,
             invoice_id: str,
             **kwargs
-    ) -> Union[InvoiceInfoResponse, MonoPayAPIException]:
+    ) -> Union[InvoiceInfo, MonoPayAPIException]:
         """
         Source: https://api.monobank.ua/docs/acquiring.html#/paths/~1api~1merchant~1invoice~1payment-info?invoiceId=%7BinvoiceId%7D/get
 
@@ -647,7 +638,7 @@ class Invoice(APIMethod):
             invoice_id: str,
             amount: int,
             **kwargs
-    ) -> Union[FinalizeInvoiceResponse, MonoPayAPIException]:
+    ) -> Union[FinalizeInvoice, MonoPayAPIException]:
         """
         Source: https://api.monobank.ua/docs/acquiring.html#/paths/~1api~1merchant~1invoice~1finalize/post
 
@@ -656,7 +647,7 @@ class Invoice(APIMethod):
         :param kwargs:
         :return:
         """
-        return FinalizeInvoiceResponse(
+        return FinalizeInvoice(
             **kwargs['response_data']
         )
 
@@ -664,8 +655,8 @@ class Invoice(APIMethod):
 class Qr(APIMethod):
 
     @APIMethod._request("get", path=APIPaths.qr_list)
-    def list(self, **kwargs) -> Union[QrListResponse, MonoPayAPIException]:
-        return QrListResponse(
+    def list(self, **kwargs) -> Union[QrList, MonoPayAPIException]:
+        return QrList(
             list=[
                 QrListItem(
                     **qr
@@ -678,12 +669,12 @@ class Qr(APIMethod):
             self,
             qr_id: str,
             **kwargs
-    ) -> Union[QrDetailsResponse, MonoPayAPIException]:
+    ) -> Union[QrDetails, MonoPayAPIException]:
         """
         :param qr_id:
         :return:
         """
-        return QrDetailsResponse(**kwargs['response_data'])
+        return QrDetails(**kwargs['response_data'])
 
     @APIMethod._request("post", path=APIPaths.qr_reset_amount)
     def reset_amount(
