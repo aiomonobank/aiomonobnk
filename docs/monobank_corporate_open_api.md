@@ -30,11 +30,17 @@ mono = MonobankCorporateOpenAPI()
 
 #### Встановлення вебхуку
 ```python
+from mbnk import MonobankCorporateOpenAPI
+
+mono = MonobankCorporateOpenAPI()
 
 ```
 
 #### Інформація про компанію
 ```python
+from mbnk import MonobankCorporateOpenAPI
+
+mono = MonobankCorporateOpenAPI()
 
 ```
 
@@ -42,11 +48,17 @@ mono = MonobankCorporateOpenAPI()
 
 #### Ініціалізія доступу
 ```python
+from mbnk import MonobankCorporateOpenAPI
+
+mono = MonobankCorporateOpenAPI()
 
 ```
 
 #### Перевірка доступу
 ```python
+from mbnk import MonobankCorporateOpenAPI
+
+mono = MonobankCorporateOpenAPI()
 
 ```
 
