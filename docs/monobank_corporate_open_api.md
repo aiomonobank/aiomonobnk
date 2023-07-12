@@ -16,21 +16,31 @@ currency_list = mono.public.currency()
 
 #### Створення заявки
 ```python
+from mbnk import MonobankCorporateOpenAPI
 
+mono = MonobankCorporateOpenAPI()
 ```
 
 #### Статус заявки
 ```python
+from mbnk import MonobankCorporateOpenAPI
 
+mono = MonobankCorporateOpenAPI()
 ```
 
 #### Встановлення вебхуку
 ```python
+from mbnk import MonobankCorporateOpenAPI
+
+mono = MonobankCorporateOpenAPI()
 
 ```
 
 #### Інформація про компанію
 ```python
+from mbnk import MonobankCorporateOpenAPI
+
+mono = MonobankCorporateOpenAPI()
 
 ```
 
@@ -38,11 +48,17 @@ currency_list = mono.public.currency()
 
 #### Ініціалізія доступу
 ```python
+from mbnk import MonobankCorporateOpenAPI
+
+mono = MonobankCorporateOpenAPI()
 
 ```
 
 #### Перевірка доступу
 ```python
+from mbnk import MonobankCorporateOpenAPI
+
+mono = MonobankCorporateOpenAPI()
 
 ```
 
