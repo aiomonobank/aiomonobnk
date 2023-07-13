@@ -1,6 +1,6 @@
 __all__ = [
     # Monobank Open API Types
-    'CurrencyListItem',
+    'Currency',
     'Account',
     'Jar',
     'Transaction',
@@ -31,183 +31,141 @@ __all__ = [
     'MerchantPubKey'
 ]
 
-import dataclasses
-import json
-
 from typing import List, Optional, Union
-from dataclasses import dataclass
+from pydantic import BaseModel, Field
+from pydantic.dataclasses import dataclass
 from mbnk.enums import *
-
-
-@dataclass
-class BaseType:
-    def export(self):
-        data = {}
-        for key in self.__dict__:
-            if self.__dict__[key] is None:
-                continue
-
-            if type(self.__dict__[key]) == list:
-                data[key] = [
-                    (
-                        item.export() if dataclasses.is_dataclass(item) else item
-                    ) for item in self.__dict__[key]
-                ]
-            else:
-                data[key] = self.__dict__[key]
-        return data
-
-    @classmethod
-    def parse(cls, data: Union[str, dict]):
-        if type(data) == str:
-            data = json.loads(data)
-
-        for field, field_type in cls.__annotations__.items():
-            if "__origin__" in field_type.__dict__ and field_type.__dict__["__origin__"] == list:
-                data[field] = [field_type.__args__[0].parse(item) for item in data[field]]
-
-        return cls(**data)
 
 
 # Monobank Open API Types
 
 # Public
 @dataclass
-class CurrencyListItem(BaseType):
-    currency_code_a: CurrencyCode
-    currency_code_b: CurrencyCode
+class Currency(BaseModel):
+    currency_code_a: CurrencyCode = Field(alias='currencyCodeA')
+    currency_code_b: CurrencyCode = Field(alias='currencyCodeB')
     date: int
-    rate_sell: float
-    rate_buy: float
-    rate_cross: float
+    rate_sell: float = Field(alias='rateSell')
+    rate_buy: float = Field(alias='rateBuy')
+    rate_cross: float = Field(alias='rateCross')
 
 
 @dataclass
-class CurrencyList:
-    list: List[CurrencyListItem]
+class CurrencyList(BaseModel):
+    list: List[Currency]
 
 
 # Personal
 @dataclass
-class Account(BaseType):
+class Account(BaseModel):
     id: str
-    send_id: str
+    send_id: str = Field(alias="sendId")
     balance: int
-    credit_limit: int
+    credit_limit: int = Field(alias="creditLimit")
     type: AccountType
-    currency_code: CurrencyCode
-    masked_pan: List[str]
+    currency_code: CurrencyCode = Field(alias="currencyCode")
+    masked_pan: List[str] = Field(alias="maskedPan")
     iban: str
-    cashback_type: Optional[CashbackType] = None
+    cashback_type: Optional[CashbackType] = Field(default=None, alias="cashbackType")
 
 
 @dataclass
-class Jar(BaseType):
+class Jar(BaseModel):
     id: str
-    send_id: str
+    send_id: str = Field(alias="sendId")
     title: str
     description: str
-    currency_code: CurrencyCode
+    currency_code: CurrencyCode = Field(alias="currencyCode")
     balance: int
     goal: int
 
 
 @dataclass
-class Transaction(BaseType):
+class Transaction(BaseModel):
     id: str
     time: int
     description: str
     mcc: int
-    original_mcc: int
+    original_mcc: int = Field(alias="originMcc")
     hold: bool
     amount: int
-    operation_amount: int
-    currency_code: CurrencyCode
-    commission_rate: int
-    cashback_amount: int
+    operation_amount: int = Field(alias="operationAmount")
+    currency_code: CurrencyCode = Field(alias="currencyCode")
+    commission_rate: int = Field(alias="commissionRate")
+    cashback_amount: int = Field(alias="cashbackAmount")
     balance: int
     comment: Optional[str] = None
-    receipt_id: Optional[str] = None
-    invoice_id: Optional[str] = None
-    counter_edrpou: Optional[str] = None
-    counter_iban: Optional[str] = None
-    counter_name: Optional[str] = None
+    receipt_id: Optional[str] = Field(default=None, alias="receiptId")
+    invoice_id: Optional[str] = Field(default=None, alias="invoiceId")
+    counter_edrpou: Optional[str] = Field(default=None, alias="counterEdrpou")
+    counter_iban: Optional[str] = Field(default=None, alias="counterIban")
+    counter_name: Optional[str] = Field(default=None, alias="counterName")
 
 
-@dataclass
-class ClientInfo:
-    client_id: str
+class ClientInfo(BaseModel):
+    client_id: str = Field(alias="clientId")
     name: str
-    web_hook_url: str
+    web_hook_url: str = Field(alias="webHookUrl")
     permissions: str
     accounts: List[Account]
     jars: List[Jar]
 
 
-@dataclass
-class Statement:
+class Statement(BaseModel):
     list: List[Transaction]
 
 
 # Mono Acquiring API
 
 # Qr
-@dataclass
-class QrListItem(BaseType):
-    short_qr_id: str
-    qr_id: str
-    amount_type: AmountType
-    page_url: str
+class QrListItem(BaseModel):
+    short_qr_id: str = Field(alias="shortQrId")
+    qr_id: str = Field(alias="qrId")
+    amount_type: AmountType = Field(alias="amountType")
+    page_url: str = Field(alias="pageUrl")
 
 
-@dataclass
-class QrList:
+class QrList(BaseModel):
     list: List[QrListItem]
 
 
-@dataclass
-class QrDetails:
-    short_qr_id: str
-    invoice_id: Optional[str]
-    amount: Optional[int]
-    ccy: Optional[int]
+class QrDetails(BaseModel):
+    short_qr_id: str = Field(alias="shortQrId")
+    invoice_id: Optional[str] = Field(default=None, alias="invoiceId")
+    amount: Optional[int] = Field(default=None)
+    ccy: Optional[int] = Field(default=None)
 
 
 # Invoice
-@dataclass
-class CanceledItem(BaseType):
+class CanceledItem(BaseModel):
     status: CancellationStatus
-    created_date: str
-    modified_date: str
-    amount: Optional[int] = None
-    ccy: Optional[CurrencyCode] = None
-    approval_code: Optional[str] = None
-    rrn: Optional[str] = None
-    ext_ref: Optional[str] = None
+    created_date: str = Field(alias="createdDate")
+    modified_date: str = Field(alias="modifiedDate")
+    amount: Optional[int] = Field(default=None)
+    ccy: Optional[CurrencyCode] = Field(default=None)
+    approval_code: Optional[str] = Field(default=None, alias="approvalCode")
+    rrn: Optional[str] = Field(default=None)
+    ext_ref: Optional[str] = Field(default=None, alias="extRef")
 
 
-@dataclass
-class InvoiceCreated:
-    invoice_id: str
-    page_url: str
+class InvoiceCreated(BaseModel):
+    invoice_id: str = Field(alias="invoiceId")
+    page_url: str = Field(alias="pageUrl")
 
 
-@dataclass
-class InvoiceCanceled:
+class InvoiceCanceled(BaseModel):
     status: str
-    created_date: str
-    modified_date: str
+    created_date: str = Field(alias="createdDate")
+    modified_date: str = Field(alias="modifiedDate")
 
 
-@dataclass
-class WalletData:
-    card_token: str
-    wallet_id: str
+class WalletData(BaseModel):
+    card_token: str = Field(alias="cardToken")
+    wallet_id: str = Field(alias="walletId")
     status: TokenizedCardStatus
 
 
-@dataclass
-class InvoiceStatus:
+class InvoiceStatus(BaseModel):
     invoice_id: str
     status: TransactionStatus
     amount: int
@@ -221,8 +179,7 @@ class InvoiceStatus:
     wallet_data: Optional[WalletData] = None
 
 
-@dataclass
-class InvoiceInfo:
+class InvoiceInfo(BaseModel):
     masked_pan: str
     approval_code: str
     rrn: str
@@ -234,7 +191,7 @@ class InvoiceInfo:
     payment_method: PaymentMethod
     domestic_card: bool
     country: str
-    created_date = Optional[str] = None
+    # created_date = Optional[str] = None
     fee: Optional[int] = None
     cancel_list: Optional[CanceledItem] = None
 
@@ -244,8 +201,7 @@ class FinalizeInvoice:
     status: str
 
 
-@dataclass
-class Product(BaseType):
+class Product(BaseModel):
     name: str
     qty: float
     sum: int
@@ -259,71 +215,70 @@ class Product(BaseType):
     uktzed: Optional[str] = None
 
 
-@dataclass
-class MerchantPaymInfo(BaseType):
+class MerchantPaymInfo(BaseModel):
     reference: str
     destination: str
-    basket_order: List[Product]
+    basket_order: List[Product] = Field(alias="basketOrder")
 
 
 @dataclass
-class SaveCardData(BaseType):
-    save_card: bool
-    wallet_id: Optional[str] = None
+class SaveCardData(BaseModel):
+    save_card: bool = Field(alias="saveCard")
+    wallet_id: Optional[str] = Field(default=None, alias="walletId")
 
 
 @dataclass
-class CancelListItem(BaseType):
+class CancelListItem(BaseModel):
     amount: int
     ccy: CurrencyCode
     date: str
-    masked_pan: str
-    approval_code: Optional[str] = None
-    rrn: Optional[str] = None
+    masked_pan: str = Field(default=None, alias="maskedPan")
+    approval_code: Optional[str] = Field(default=None, alias="approvalCode")
+    rrn: Optional[str] = Field(default=None)
 
 
 # Merchant
 @dataclass
-class MerchantStatementItem(BaseType):
-    invoice_id: str
+class MerchantStatementItem(BaseModel):
+    invoice_id: str = Field(alias="invoiceId")
     status: str
-    masked_pan: str
+    masked_pan: str = Field(alias="maskedPan")
     date: str
-    payment_scheme: PaymentScheme
+    payment_scheme: PaymentScheme = Field(alias="paymentScheme")
     amount: int
     ccy: CurrencyCode
-    profit: Optional[int] = None
-    approval_code: Optional[str] = None
-    reference: Optional[str] = None
-    cancel_list: List[CancelListItem] = None
-    rrn: Optional[str] = None
-    short_qr_id: Optional[str] = None
+    profit: Optional[int] = Field(default=None)
+    approval_code: Optional[str] = Field(default=None, alias="approvalCode")
+    reference: Optional[str] = Field(default=None)
+    cancel_list: Optional[List[CancelListItem]] = Field(default=None, alias="cancelList")
+    rrn: Optional[str] = Field(default=None)
+    short_qr_id: Optional[str] = Field(default=None, alias="shortQrId")
 
 
 @dataclass
-class MerchantDetails(BaseType):
-    merchant_id: str
-    merchant_name: str
+class MerchantDetails(BaseModel):
+    merchant_id: str = Field(alias="merchantId")
+    merchant_name: str = Field(alias="merchantName")
 
 
 @dataclass
-class MerchantStatement(BaseType):
+class MerchantStatement(BaseModel):
     list: List[MerchantStatementItem]
 
 
 @dataclass
-class MerchantPubKey(BaseType):
+class MerchantPubKey(BaseModel):
     key: str
 
 
 # Wallet
 @dataclass
-class WalletItem(BaseType):
-    card_token: str
-    masked_pan: str
-    country: Optional[str] = None
+class WalletItem(BaseModel):
+    card_token: str = Field(alias="cardToken")
+    masked_pan: str = Field(alias="maskedPan")
+    country: Optional[str] = Field(default=None)
 
 
 @dataclass
-class WalletCards(BaseType):
+class WalletCards(BaseModel):
     wallets: List[WalletItem]

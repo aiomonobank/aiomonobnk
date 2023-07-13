@@ -7,6 +7,7 @@ from mbnk import MonobankOpenAPI
 from mbnk.asyncio import AsyncMonobankOpenAPI
 
 from mbnk.types import *
+from mbnk.enums import *
 
 load_dotenv(dotenv_path=os.path.abspath('.env'))
 
@@ -15,6 +16,8 @@ def test_public_currency_sync():
     mono = MonobankOpenAPI()
 
     currencies = mono.public.currency()
+
+    print(currencies)
 
     assert isinstance(currencies, CurrencyList)
 
@@ -34,6 +37,8 @@ def test_personal_info_sync():
     )
 
     client_info = mono.personal.info()
+
+    print(client_info)
 
     assert isinstance(client_info, ClientInfo)
 

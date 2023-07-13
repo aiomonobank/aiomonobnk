@@ -1,11 +1,12 @@
 __all__ = [
-    'MonobankOpenAPIModel',
-    'MonobankCorporateOpenAPIModel',
-    'MonoAcquiringAPIModel'
+    'APIMethod',
+    'APIPaths'
 ]
 
 import base64
 import codecs
+import random
+import string
 
 import ecdsa
 import hashlib
@@ -16,6 +17,8 @@ import requests
 
 from enum import Enum
 from datetime import datetime
+
+from pydantic import BaseModel
 
 from requests import Response
 from aiohttp import (
@@ -30,7 +33,7 @@ from mbnk.types import *
 
 from mbnk.responses import *
 
-import dataclasses
+from pydantic import dataclasses
 
 
 class APIMethod:
@@ -41,10 +44,8 @@ class APIMethod:
     def __init__(
             self,
             base_url: str,
-            _async: bool,
             api_token: Optional[str] = None,
     ):
-        self.__is_async: bool = _async
         self.__base_url: str = base_url
 
         if api_token is not None:
@@ -88,12 +89,18 @@ class APIMethod:
 
             value = kwargs.get(kwarg)
 
-            if dataclasses.is_dataclass(value):
-                data[key] = value.export()
+            print("VALUE", value)
+
+            if isinstance(value, BaseModel):
+                print("IS DATACLASS")
+                data[key] = value.model_dump_json()
+                print(data[key])
             else:
                 data[key] = value
 
         data = self.__json_convert(data, self.__underscore_to_camel)
+
+        print("DATA",  data)
 
         return data
 
@@ -111,26 +118,6 @@ class APIMethod:
 
         return False
 
-    @staticmethod
-    def __get_exception(response: Union[Response, ClientResponse]):
-        if isinstance(response, Response):
-            status_code = response.status_code
-        elif isinstance(response, ClientResponse):
-            status_code = response.status
-        else:
-            return
-
-        if status_code == 400:
-            raise Exception
-        elif status_code == 403:
-            raise Exception
-        elif status_code == 404:
-            raise Exception
-        elif status_code == 429:
-            raise TooManyRequestsException
-        else:
-            return MonoPayAPIException
-
     def __sync_request(
             self,
             method: str,
@@ -138,20 +125,22 @@ class APIMethod:
             data: str = None,
             params: str = None
     ):
-        request = getattr(requests, method)
-        response = request(
+        response = requests.request(
+            method=method,
             url=f"{self.__base_url}/{path}",
             headers=self.__headers,
             params=params,
             data=json.dumps(data) if data is not None else None
         )
         response_data = response.json()
-        response_data = self.__load_response(response_data)
 
         if self.__is_exception(response):
-            raise self.__get_exception(response)
+            raise MonobankAPIException
 
-        return response_data
+        if isinstance(response_data, list):
+            return {"list": response_data}
+
+        return response.json()
 
     async def __async_request(
             self,
@@ -172,7 +161,7 @@ class APIMethod:
                 response_data = self.__load_response(response_data)
 
                 if self.__is_exception(response):
-                    raise self.__get_exception(response)
+                    raise MonobankAPIException
 
                 return response_data
 
@@ -198,8 +187,7 @@ class APIMethod:
 
     @staticmethod
     def __generate_request_id():
-        request_id = ""
-
+        request_id = "".join(random.choices(string.ascii_letters + string.digits, k=random.randint(18, 24)))
         return request_id
 
     @staticmethod
@@ -214,7 +202,6 @@ class APIMethod:
 
     @staticmethod
     def __create_signature(self):
-        print(self.__headers)
         url = "https://api.monobank.ua"
         data = (self.__headers["X-Time"] + url).encode('utf-8')
 
@@ -235,37 +222,77 @@ class APIMethod:
         return outer
 
     @staticmethod
-    def _request(
-            request_method: str,
+    def _async_request(
+            method: str,
             path: str
     ):
         def outer(func):
             def inner(*args, **kwargs):
                 self = args[0]
                 args = args[1:]
+
                 func_args = {
-                    "method": request_method,
+                    "method": method,
                     "path": path,
                     ("params" if request_method == "get" else "data"): self.__build_data(**kwargs)
                 }
 
-                async def async_wrapper():
-                    response = await self.__async_request(**func_args)
+                async with ClientSession() as session:
+                    async with session.request(
+                            method=method,
+                            url=f"{self.__base_url}/{path}",
+                            headers=self.__headers,
+                            data=json.dumps(data) if data is not None else None,
+                            params=params
+                    ) as response:
+                        response_data = await response.json()
+                        response_data = self.__load_response(response_data)
 
-                    if isinstance(response, MonoPayAPIException) or isinstance(response, MonobankAPIException):
-                        return response
+                        if self.__is_exception(response):
+                            raise MonobankAPIException
 
-                    return func(self, *args, **kwargs, response_data=response)
+                        if isinstance(response, MonobankAPIException) or isinstance(response, MonobankAPIException):
+                            return response
 
-                def sync_wrapper():
-                    response = self.__sync_request(**func_args)
+                        return func(self, *args, **kwargs, response_data=response)
 
-                    return func(self, *args, **kwargs, response_data=response)
+            return inner
 
-                if self.__is_async:
-                    return async_wrapper()
-                else:
-                    return sync_wrapper()
+        return outer
+
+    @staticmethod
+    def _request(
+            method: str,
+            path: str
+    ):
+        def outer(func):
+            def inner(*args, **kwargs):
+                self = args[0]
+                args = args[1:]
+
+                func_args = {
+                    "method": method,
+                    "path": path,
+                    ("params" if request_method == "get" else "data"): self.__build_data(**kwargs)
+                }
+
+                response = requests.request(
+                    method=method,
+                    url=f"{self.__base_url}/{path}",
+                    headers=self.__headers,
+                    params=params,
+                    data=json.dumps(data) if data is not None else None
+                )
+
+                response_data = response.json()
+
+                if self.__is_exception(response):
+                    raise MonobankAPIException
+
+                if isinstance(response_data, list):
+                    response_data = {"list": response_data}
+
+                return func(self, *args, **kwargs, response_data=response_data)
 
             return inner
 
@@ -318,13 +345,7 @@ class Public(APIMethod):
     @APIMethod._request("get", path=APIPaths.currencies_list)
     def currency(self, **kwargs) -> Union[CurrencyList, MonobankAPIException]:
 
-        return CurrencyList(
-            list=[
-                CurrencyListItem(
-                    **item
-                ) for item in kwargs['response_data']
-            ]
-        )
+        return CurrencyList.model_validate(kwargs['response_data'])
 
 
 class Personal(APIMethod):
@@ -337,22 +358,7 @@ class Personal(APIMethod):
         :return:
         """
 
-        return ClientInfo(
-            client_id=kwargs['response_data']['client_id'],
-            name=kwargs['response_data']['name'],
-            web_hook_url=kwargs['response_data']['web_hook_url'],
-            permissions=kwargs['response_data']['permissions'],
-            accounts=[
-                Account(
-                    **account
-                ) for account in kwargs['response_data']['accounts']
-            ],
-            jars=[
-                Jar(
-                    **jar
-                ) for jar in kwargs['response_data']['jars']
-            ]
-        )
+        return ClientInfo.model_validate(kwargs['response_data'])
 
     @APIMethod._request("post", path=APIPaths.personal_webhook)
     def set_web_hook(self, web_hook_url: str) -> Union[EmptyResponse, MonobankAPIException]:
@@ -376,10 +382,9 @@ class Personal(APIMethod):
         )
 
 
-class MonobankOpenAPIModel:
+class MonobankOpenAPI:
 
     __base_url = "https://api.monobank.ua"
-    __is_async: bool = False
     __api_token: str = None
 
     def __init__(self, _async: bool, api_token: Optional[str] = None):
@@ -426,7 +431,7 @@ class Authorization(APIMethod):
         pass
 
 
-class MonobankCorporateOpenAPIModel:
+class MonobankCorporateOpenAPI:
 
     __base_url: str = "https://api.monobank.ua"
     __headers: dict = {}
@@ -482,7 +487,7 @@ class MonobankCorporateOpenAPIModel:
 class Merchant(APIMethod):
 
     @APIMethod._request("get", path=APIPaths.merchant_details)
-    def details(self, **kwargs) -> Union[MerchantDetails, MonoPayAPIException]:
+    def details(self, **kwargs) -> Union[MerchantDetails, MonobankAPIException]:
         """
         Mono Acquiring API: https://api.monobank.ua/docs/acquiring.html#/paths/~1api~1merchant~1details/get
 
@@ -497,7 +502,7 @@ class Merchant(APIMethod):
             from_timestamp: int,
             to_timestamp: Optional[int] = None,
             **kwargs
-    ) -> Union[MerchantStatement, MonoPayAPIException]:
+    ) -> Union[MerchantStatement, MonobankAPIException]:
         """
         Mono Acquiring API: https://api.monobank.ua/docs/acquiring.html#/paths/~1api~1merchant~1statement/get
 
@@ -521,7 +526,7 @@ class Merchant(APIMethod):
         )
 
     @APIMethod._request("get", path=APIPaths.merchant_pubkey)
-    def pubkey(self, **kwargs) -> Union[MerchantPubKey, MonoPayAPIException]:
+    def pubkey(self, **kwargs) -> Union[MerchantPubKey, MonobankAPIException]:
         """
         Mono Acquiring API Docs: https://api.monobank.ua/docs/acquiring.html#/paths/~1api~1merchant~1pubkey/get
 
@@ -546,7 +551,7 @@ class Invoice(APIMethod):
             qr_id: Optional = None,
             save_card_data: Optional[SaveCardData] = None,
             **kwargs
-    ) -> Union[InvoiceCreated, MonoPayAPIException]:
+    ) -> Union[InvoiceCreated, MonobankAPIException]:
         """
         Mono Acquiring API: https://api.monobank.ua/docs/acquiring.html#/paths/~1api~1merchant~1invoice~1create/post
 
@@ -572,7 +577,7 @@ class Invoice(APIMethod):
             amount: int = None,
             items=None,
             **kwargs
-    ) -> Union[InvoiceCanceled, MonoPayAPIException]:
+    ) -> Union[InvoiceCanceled, MonobankAPIException]:
         """
         Mono Acquiring API: https://api.monobank.ua/docs/acquiring.html#/paths/~1api~1merchant~1invoice~1cancel/post
 
@@ -589,7 +594,7 @@ class Invoice(APIMethod):
             self,
             invoice_id: str,
             **kwargs
-    ) -> Union[InvoiceStatus, MonoPayAPIException]:
+    ) -> Union[InvoiceStatus, MonobankAPIException]:
         """
         Mono Acquiring API: https://api.monobank.ua/docs/acquiring.html#/paths/~1api~1merchant~1invoice~1status?invoiceId=%7BinvoiceId%7D/get
 
@@ -605,7 +610,7 @@ class Invoice(APIMethod):
             self,
             invoice_id: str,
             **kwargs
-    ) -> Union[EmptyResponse, MonoPayAPIException]:
+    ) -> Union[EmptyResponse, MonobankAPIException]:
         """
         Source: https://api.monobank.ua/docs/acquiring.html#/paths/~1api~1merchant~1invoice~1remove/post
 
@@ -621,7 +626,7 @@ class Invoice(APIMethod):
             self,
             invoice_id: str,
             **kwargs
-    ) -> Union[InvoiceInfo, MonoPayAPIException]:
+    ) -> Union[InvoiceInfo, MonobankAPIException]:
         """
         Source: https://api.monobank.ua/docs/acquiring.html#/paths/~1api~1merchant~1invoice~1payment-info?invoiceId=%7BinvoiceId%7D/get
 
@@ -638,7 +643,7 @@ class Invoice(APIMethod):
             invoice_id: str,
             amount: int,
             **kwargs
-    ) -> Union[FinalizeInvoice, MonoPayAPIException]:
+    ) -> Union[FinalizeInvoice, MonobankAPIException]:
         """
         Source: https://api.monobank.ua/docs/acquiring.html#/paths/~1api~1merchant~1invoice~1finalize/post
 
@@ -655,7 +660,7 @@ class Invoice(APIMethod):
 class Qr(APIMethod):
 
     @APIMethod._request("get", path=APIPaths.qr_list)
-    def list(self, **kwargs) -> Union[QrList, MonoPayAPIException]:
+    def list(self, **kwargs) -> Union[QrList, MonobankAPIException]:
         return QrList(
             list=[
                 QrListItem(
@@ -669,7 +674,7 @@ class Qr(APIMethod):
             self,
             qr_id: str,
             **kwargs
-    ) -> Union[QrDetails, MonoPayAPIException]:
+    ) -> Union[QrDetails, MonobankAPIException]:
         """
         :param qr_id:
         :return:
@@ -681,7 +686,7 @@ class Qr(APIMethod):
             self,
             qr_id: str,
             **kwargs
-    ) -> Union[EmptyResponse, MonoPayAPIException]:
+    ) -> Union[EmptyResponse, MonobankAPIException]:
         """
         :param qr_id:
         :return:
@@ -731,38 +736,32 @@ class Wallet(APIMethod):
         return kwargs["response_data"]
 
 
-class MonoAcquiringAPIModel:
+class MonoAcquiringAPI:
 
     __base_url: str = "https://api.monobank.ua/api"
-    __is_async: bool = False
 
-    def __init__(self, api_token: str, _async: bool):
+    def __init__(self, api_token: str):
 
-        self.__is_async: bool = _async
         self.__api_token: str = api_token
 
         self.merchant: Merchant = Merchant(
             api_token=self.__api_token,
-            base_url=self.__base_url,
-            _async=self.__is_async
+            base_url=self.__base_url
         )
 
         self.invoice: Invoice = Invoice(
             api_token=self.__api_token,
-            base_url=self.__base_url,
-            _async=self.__is_async
+            base_url=self.__base_url
         )
 
         self.qr: Qr = Qr(
             api_token=self.__api_token,
-            base_url=self.__base_url,
-            _async=self.__is_async
+            base_url=self.__base_url
         )
 
         self.wallet: Wallet = Wallet(
             api_token=self.__api_token,
-            base_url=self.__base_url,
-            _async=self.__is_async
+            base_url=self.__base_url
         )
 
     def get_api_token(self):

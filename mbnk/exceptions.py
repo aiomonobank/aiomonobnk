@@ -6,7 +6,7 @@
 from dataclasses import dataclass
 
 
-class MonobankOpenAPIException(Exception):
+class MonobankOpenAPIException(BaseException):
     error_description: str = ""
 
 
@@ -15,7 +15,7 @@ class TooManyRequestsException(MonobankOpenAPIException):
 
 
 @dataclass
-class MonobankAPIException:
+class MonobankAPIException(BaseException):
     err_description: str = None
 
 
@@ -28,3 +28,4 @@ class MonoPayAPIException:
 
 class MonobankBadRequest(MonobankOpenAPIException):
     pass
+

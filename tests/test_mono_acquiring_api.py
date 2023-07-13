@@ -36,13 +36,11 @@ async def test_invoice_create_async():
         reference="1234",
         destination="Призначення",
         basket_order=[
-            *[
-                 Product(
-                     name=f"name_{x}",
-                     qty=x,
-                     sum=x*100
-                 ) for x in range(1, 2)
-            ]
+            Product(
+                name=f"name_{1}",
+                qty=1,
+                sum=100
+            )
         ]
     )
 
