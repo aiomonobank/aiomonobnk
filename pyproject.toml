@@ -1,13 +1,18 @@
 [tool.poetry]
-name = "mbnk"
-version = "0.2.0a2"
-description = "Sync/Async version monobank api"
+name = "aiomonobnk"
+version = "0.4.2"
+description = "Sync/Async version Monobank api"
 authors = ["yeghorkikhai <yeghorkikhai@gmail.com>"]
 license = "MIT"
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.8"
+python = "^3.11"
+ecdsa = "^0.18.0"
+pydantic = "^2.0.2"
+pytest = "^7.4.0"
+aiohttp = "^3.8.4"
+requests = "^2.31.0"
 
 
 [build-system]

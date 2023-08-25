@@ -3,11 +3,11 @@ import pytest
 
 from dotenv import load_dotenv
 
-from mbnk import MonoAcquiringAPI
-from mbnk.asyncio import AsyncMonoAcquiringAPI
+from aiomonobnk import MonoAcquiringAPI
+from aiomonobnk.asyncio import AsyncMonoAcquiringAPI
 
-from mbnk.types import *
-from mbnk.responses import *
+from aiomonobnk.types import *
+from aiomonobnk.responses import *
 
 load_dotenv(dotenv_path=os.path.abspath('.env'))
 
@@ -36,13 +36,11 @@ async def test_invoice_create_async():
         reference="1234",
         destination="Призначення",
         basket_order=[
-            *[
-                 Product(
-                     name=f"name_{x}",
-                     qty=x,
-                     sum=x*100
-                 ) for x in range(1, 2)
-            ]
+            Product(
+                name=f"name_{1}",
+                qty=1,
+                sum=100
+            )
         ]
     )
 
