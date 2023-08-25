@@ -6,7 +6,7 @@
 
 ```python
 import os
-from mbnk import MonobankOpenAPI
+from aiomonobnk import MonobankOpenAPI
 
 mono = MonobankOpenAPI()
 
@@ -16,9 +16,10 @@ currency_list = mono.public.currency()
 ### Клієнтські персональні дані
 
 #### Інформація про клієнта
+
 ```python
 import os
-from mbnk import MonobankOpenAPI
+from aiomonobnk import MonobankOpenAPI
 
 mono = MonobankOpenAPI(
     api_token=os.getenv("MONOBANK_API_TOKEN")
@@ -28,9 +29,10 @@ client_info = mono.personal.info()
 ```
 
 #### Встановлення WebHook
+
 ```python
 import os
-from mbnk import MonobankOpenAPI
+from aiomonobnk import MonobankOpenAPI
 
 mono = MonobankOpenAPI(
     api_token=os.getenv("MONOBANK_API_TOKEN")
@@ -44,11 +46,11 @@ mono.personal.set_web_hook(
 ```
 
 #### Виписка
+
 ```python
 import os
-from mbnk import MonobankOpenAPI
+from aiomonobnk import MonobankOpenAPI
 from datetime import datetime, timedelta
-
 
 mono = MonobankOpenAPI(
     api_token=os.getenv("MONOBANK_API_TOKEN")

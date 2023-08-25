@@ -32,29 +32,33 @@ pip install mbnk
 ### Get Started with Monobank Open API
 
 <b>Async example:</b>
+
 ```python
 import os
 import asyncio
-from mbnk.asyncio import AsyncMonobankOpenAPI
+from aiomonobnk.asyncio import AsyncMonobankOpenAPI
+
 
 async def main():
     async_mono = AsyncMonobankOpenAPI(api_token=os.getenv("MONOBANK_API_TOKEN"))
-    
+
     currency_list = await async_mono.public.currency()
-    
+
+
 if __name__ == "__main__":
     asyncio.run(main())
 ```
 
 <b>Sync example:</b>
+
 ```python
 import os
-from mbnk import MonobankOpenAPI
+from aiomonobnk import MonobankOpenAPI
 
 mono = MonobankOpenAPI(
     api_token=os.getenv("MONOBANK_API_TOKEN")
 )
 
-#Get currencies rates list
+# Get currencies rates list
 currency_list = mono.public.currency()
 ```

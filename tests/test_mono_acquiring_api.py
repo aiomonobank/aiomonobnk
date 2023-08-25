@@ -3,11 +3,11 @@ import pytest
 
 from dotenv import load_dotenv
 
-from mbnk import MonoAcquiringAPI
-from mbnk.asyncio import AsyncMonoAcquiringAPI
+from aiomonobnk import MonoAcquiringAPI
+from aiomonobnk.asyncio import AsyncMonoAcquiringAPI
 
-from mbnk.types import *
-from mbnk.responses import *
+from aiomonobnk.types import *
+from aiomonobnk.responses import *
 
 load_dotenv(dotenv_path=os.path.abspath('.env'))
 

@@ -3,11 +3,11 @@ import pytest
 
 from dotenv import load_dotenv
 
-from mbnk import MonobankOpenAPI
-from mbnk.asyncio import AsyncMonobankOpenAPI
+from aiomonobnk import MonobankOpenAPI
+from aiomonobnk.asyncio import AsyncMonobankOpenAPI
 
-from mbnk.types import *
-from mbnk.enums import *
+from aiomonobnk.types import *
+from aiomonobnk.enums import *
 
 load_dotenv(dotenv_path=os.path.abspath('.env'))
 

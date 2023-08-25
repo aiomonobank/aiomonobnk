@@ -4,8 +4,9 @@
 ### Вебхук
 
 #### Верифікація підпису WebHook
+
 ```python
-from mbnk.utils.webhook import webhook_authentication
+from aiomonobnk.utils.webhook import webhook_authentication
 
 # example pubkey
 pub_key_base64 = "LS0tLS1CRUdJTiBQVUJMSUM...IEtFWS0tLS0tCg=="
@@ -38,12 +39,11 @@ body_bytes = b'''{
   ]
 }'''
 
-
 if webhook_authentication(
-        pub_key_base64=pub_key_base64, 
-        x_sign_base64=x_sign_base64, 
+        pub_key_base64=pub_key_base64,
+        x_sign_base64=x_sign_base64,
         body_bytes=body_bytes
-    ): 
+):
     print("Authenticated")
 else:
     print("Failed to authenticate")
@@ -54,7 +54,7 @@ else:
 
 ```python
 import os
-from mbnk import MonoAcquiringAPI
+from aiomonobnk import MonoAcquiringAPI
 
 mono = MonoAcquiringAPI(
     api_token=os.getenv('MONOBANK_API_TOKEN')
@@ -68,7 +68,7 @@ response = mono.invoice.create(amount=100)
 
 ```python
 import os
-from mbnk import MonoAcquiringAPI
+from aiomonobnk import MonoAcquiringAPI
 
 mono = MonoAcquiringAPI(
     api_token=os.getenv("MONOBANK_API_TOKEN")
@@ -81,7 +81,7 @@ response = monopay.invoice.status(invoice_id="<invoiceId>")
 
 ```python
 import os
-from mbnk import MonoAcquiringAPI
+from aiomonobnk import MonoAcquiringAPI
 
 mono = MonoAcquiringAPI(
     api_token=os.getenv("MONOBANK_API_TOKEN")
@@ -94,7 +94,7 @@ response = monopay.invoice.info(invoice_id="<invoiceId>")
 
 ```python
 import os
-from mbnk import MonoAcquiringAPI
+from aiomonobnk import MonoAcquiringAPI
 
 mono = MonoAcquiringAPI(
     api_token=os.getenv("MONOBANK_API_TOKEN")
@@ -107,7 +107,7 @@ response = monopay.invoice.status(invoice_id="<invoiceId>")
 
 ```python
 import os
-from mbnk import MonoAcquiringAPI
+from aiomonobnk import MonoAcquiringAPI
 
 mono = MonoAcquiringAPI(
     api_token=os.getenv("MONOBANK_API_TOKEN")
@@ -120,7 +120,7 @@ response = monopay.invoice.status(invoice_id="<invoiceId>")
 
 ```python
 import os
-from mbnk import MonoAcquiringAPI
+from aiomonobnk import MonoAcquiringAPI
 
 mono = MonoAcquiringAPI(
     api_token=os.getenv("MONOBANK_API_TOKEN")
@@ -132,9 +132,10 @@ response = mono.invoice.status(invoice_id="<invoiceId>")
 ### Qr-Каси
 
 #### Список QR-кас
+
 ```python
 import os
-from mbnk import MonoAcquiringAPI
+from aiomonobnk import MonoAcquiringAPI
 
 mono = MonoAcquiringAPI(
     api_token=os.getenv("MONOBANK_API_TOKEN")
@@ -144,9 +145,10 @@ qr_list = mono.qr.list()
 ```
 
 #### Інформація про QR-касу
+
 ```python
 import os
-from mbnk import MonoAcquiringAPI
+from aiomonobnk import MonoAcquiringAPI
 
 mono = MonoAcquiringAPI(
     api_token=os.getenv("MONOBANK_API_TOKEN")
@@ -156,9 +158,10 @@ qr_details = mono.qr.details(qr_id="qrId")
 ```
 
 #### Видалення суми оплати
+
 ```python
 import os
-from mbnk import MonoAcquiringAPI
+from aiomonobnk import MonoAcquiringAPI
 
 mono = MonoAcquiringAPI(
     api_token=os.getenv("MONOBANK_API_TOKEN")
@@ -170,9 +173,10 @@ response = mono.qr.reset_amount(qr_id="<qrId>")
 ### Гаманець
 
 #### Список карток у гаманці
+
 ```python
 import os
-from mbnk import MonoAcquiringAPI
+from aiomonobnk import MonoAcquiringAPI
 
 mono = MonoAcquiringAPI(
     api_token=os.getenv("MONOBANK_API_TOKEN")
@@ -182,9 +186,10 @@ response = mono.wallet.cards()
 ```
 
 #### Оплата по токену
+
 ```python
 import os
-from mbnk import MonoAcquiringAPI
+from aiomonobnk import MonoAcquiringAPI
 
 mono = MonoAcquiringAPI(
     api_token=os.getenv("MONOBANK_API_TOKEN")
@@ -194,9 +199,10 @@ response = mono.wallet.payment()
 ```
 
 #### Видалення токенізованої картки
+
 ```python
 import os
-from mbnk import MonoAcquiringAPI
+from aiomonobnk import MonoAcquiringAPI
 
 mono = MonoAcquiringAPI(
     api_token=os.getenv("MONOBANK_API_TOKEN")
@@ -208,9 +214,10 @@ response = mono.wallet.delete_card(wallet_id="<walletId>")
 ### Мерчант
 
 #### Дані мерчанта
+
 ```python
 import os
-from mbnk import MonoAcquiringAPI
+from aiomonobnk import MonoAcquiringAPI
 
 mono = MonoAcquiringAPI(
     api_token=os.getenv("MONOBANK_API_TOKEN")
@@ -220,9 +227,10 @@ merchant_details = mono.merchant.details()
 ```
 
 #### Виписка за період
+
 ```python
-import os 
-from mbnk import MonoAcquiringAPI
+import os
+from aiomonobnk import MonoAcquiringAPI
 
 mono = MonoAcquiringAPI(
     api_token=os.getenv("MONOBANK_API_TOKEN")
@@ -232,9 +240,10 @@ merchant_statement = mono.merchant.statement()
 ```
 
 #### Відкритий ключ для верифікації підписів
+
 ```python
-import os 
-from mbnk import MonoAcquiringAPI
+import os
+from aiomonobnk import MonoAcquiringAPI
 
 mono = MonoAcquiringAPI(
     api_token=os.getenv("MONOBANK_API_TOKEN")
