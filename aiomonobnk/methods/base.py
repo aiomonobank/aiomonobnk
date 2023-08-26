@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod, ABCMeta
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 from enum import StrEnum
 
@@ -29,7 +29,14 @@ class Request(BaseModel, Generic[BaseType]):
 
 
 class Response(BaseModel, Generic[BaseType]):
-    result: BaseType | None = None
+    model_config = ConfigDict(
+        use_enum_values=True,
+        extra="allow",
+        validate_assignment=True,
+        frozen=True,
+        populate_by_name=True,
+        arbitrary_types_allowed=True
+    )
 
 
 class ClientMethod(ClientContextController, BaseModel, Generic[BaseType], ABC):

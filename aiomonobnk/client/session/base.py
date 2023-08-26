@@ -51,6 +51,8 @@ class BaseSession(abc.ABC):
 
         if status_code == HTTPStatus.BAD_REQUEST:
             raise ClientBadRequestError
+        if status_code == HTTPStatus.UNPROCESSABLE_ENTITY:
+            raise ClientBadRequestError
         if status_code == HTTPStatus.NOT_FOUND:
             raise ClientNotFoundError
         if status_code == HTTPStatus.UNAUTHORIZED:

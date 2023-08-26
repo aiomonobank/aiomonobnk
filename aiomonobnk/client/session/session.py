@@ -43,14 +43,13 @@ class Session(BaseSession):
     def build_query(self, method: ClientMethod) -> dict[str, Any]:
         query = {}
         for key, value in method.model_dump(warnings=False, by_alias=True).items():
-            print(key, value)
             value = self.prepare_value(value)
 
             if not value:
                 continue
 
             if key[-1] == '_':
-                continue
+                key = key[:-1]
 
             query[key] = value
 
@@ -64,8 +63,8 @@ class Session(BaseSession):
             if not value:
                 continue
 
-            if key[-1] == '_':
-                key = key[:-1]
+            if key[len(key) - 2:] == '__':
+                key = key[len(key) - 2:]
                 url = url.replace('{' + key + '}', str(value))
 
         return url
@@ -97,8 +96,6 @@ class Session(BaseSession):
             query = self.build_query(method)
         else:
             query = None
-
-        print(data)
 
         try:
             async with session.request(

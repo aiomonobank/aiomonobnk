@@ -4,7 +4,12 @@ from .methods import (
     CreateInvoiceMethod,
     InvoiceStatusMethod,
     CancelInvoiceMethod,
-    RemoveInvoiceMethod
+    RemoveInvoiceMethod,
+    MerchantPubKeyMethod,
+    MerchantDetailsMethod,
+    MerchantStatementMethod,
+    SubmerchantListMethod,
+    FiscalChecksMethod
 )
 from .enums import (
     CurrencyCode,
@@ -84,6 +89,56 @@ class MonoPay(Client):
             request_timeout: int | None = None
     ):
         call = RemoveInvoiceMethod(
+            invoice_id=invoice_id
+        )
+
+        return await self(call, request_timeout=request_timeout)
+
+    async def merchant_pubkey(
+            self,
+            request_timeout: int | None = None
+    ):
+        call = MerchantPubKeyMethod()
+
+        return await self(call, request_timeout=request_timeout)
+
+    async def merchant_details(
+            self,
+            request_timeout: int | None = None
+    ):
+        call = MerchantDetailsMethod()
+
+        return await self(call, request_timeout=request_timeout)
+
+    async def merchant_statement(
+            self,
+            from_: int | None = None,
+            # unix utc timestamp
+            to: int | None = None,
+            # unix utc timestamp
+            request_timeout: int | None = None
+    ):
+        call = MerchantStatementMethod(
+            from_=from_,
+            to=to
+        )
+
+        return await self(call, request_timeout=request_timeout)
+
+    async def submerchants_list(
+            self,
+            request_timeout: int | None = None
+    ):
+        call = SubmerchantListMethod()
+
+        return await self(call, request_timeout=request_timeout)
+
+    async def fiscal_checks(
+            self,
+            invoice_id: str,
+            request_timeout: int | None = None
+    ):
+        call = FiscalChecksMethod(
             invoice_id=invoice_id
         )
 

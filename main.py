@@ -3,6 +3,7 @@ import asyncio
 from aiomonobnk import MonoPay
 from aiomonobnk.enums import CurrencyCode, PaymentType
 from aiomonobnk.types import SaveCardData
+from datetime import datetime, timedelta
 
 
 async def main():
@@ -17,8 +18,7 @@ async def main():
                 save_card=True
             )
         )
-        invoice_status = await client.remove_invoice(invoice_id=invoice.invoice_id)
-        print(invoice_status)
+        statement = await client.merchant_statement(from_=int((datetime.utcnow() - timedelta(days=29)).timestamp()))
 
 if __name__ == '__main__':
     asyncio.run(main())

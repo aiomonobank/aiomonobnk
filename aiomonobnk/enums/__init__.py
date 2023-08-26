@@ -9,7 +9,10 @@ from .payment_type import PaymentType
 from .registration_status import RegistrationStatus
 from .tokenized_card_status import TokenizedCardStatus
 from .transaction_status import TransactionStatus
-
+from .initiation_kind import InitiationKind
+from .fiscalization_source import FiscalizationSource
+from .check_type import CheckType
+from .check_status import CheckStatus
 
 __all__ = [
     AccountType,
@@ -22,5 +25,9 @@ __all__ = [
     PaymentType,
     RegistrationStatus,
     TokenizedCardStatus,
-    TransactionStatus
+    TransactionStatus,
+    InitiationKind,
+    FiscalizationSource,
+    CheckType,
+    CheckStatus
 ]

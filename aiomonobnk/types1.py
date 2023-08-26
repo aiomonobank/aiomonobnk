@@ -14,21 +14,12 @@ __all__ = [
     'QrListItem',
     'QrList',
     'QrDetails',
-    'InvoiceCreated',
     'InvoiceCanceled',
-    'InvoiceStatus',
     'InvoiceInfo',
     'FinalizeInvoice',
-    'Product',
-    'MerchantPaymInfo',
-    'SaveCardData',
     'CancelListItem',
     'WalletItem',
     'WalletCards',
-    'MerchantStatementItem',
-    'MerchantDetails',
-    'MerchantStatement',
-    'MerchantPubKey'
 ]
 
 from typing import List, Optional, Union
@@ -143,7 +134,6 @@ class InvoiceCanceled(BaseModel):
     modified_date: str = Field(alias="modifiedDate")
 
 
-
 class InvoiceInfo(BaseModel):
     masked_pan: str
     approval_code: str
@@ -166,32 +156,6 @@ class FinalizeInvoice:
     status: str
 
 
-class Product(BaseModel):
-    name: str
-    qty: float
-    sum: int
-    icon: Optional[str] = None
-    unit: Optional[str] = None
-    code: Optional[str] = None
-    barcode: Optional[str] = None
-    header: Optional[str] = None
-    footer: Optional[str] = None
-    tax: Optional[List[int]] = None
-    uktzed: Optional[str] = None
-
-
-class MerchantPaymInfo(BaseModel):
-    reference: str
-    destination: str
-    basket_order: List[Product] = Field(alias="basketOrder")
-
-
-@dataclass
-class SaveCardData(BaseModel):
-    save_card: bool = Field(alias="saveCard")
-    wallet_id: Optional[str] = Field(default=None, alias="walletId")
-
-
 @dataclass
 class CancelListItem(BaseModel):
     amount: int
@@ -200,40 +164,6 @@ class CancelListItem(BaseModel):
     masked_pan: str = Field(default=None, alias="maskedPan")
     approval_code: Optional[str] = Field(default=None, alias="approvalCode")
     rrn: Optional[str] = Field(default=None)
-
-
-# Merchant
-@dataclass
-class MerchantStatementItem(BaseModel):
-    invoice_id: str = Field(alias="invoiceId")
-    status: str
-    masked_pan: str = Field(alias="maskedPan")
-    date: str
-    payment_scheme: PaymentScheme = Field(alias="paymentScheme")
-    amount: int
-    ccy: CurrencyCode
-    profit: Optional[int] = Field(default=None)
-    approval_code: Optional[str] = Field(default=None, alias="approvalCode")
-    reference: Optional[str] = Field(default=None)
-    cancel_list: Optional[List[CancelListItem]] = Field(default=None, alias="cancelList")
-    rrn: Optional[str] = Field(default=None)
-    short_qr_id: Optional[str] = Field(default=None, alias="shortQrId")
-
-
-@dataclass
-class MerchantDetails(BaseModel):
-    merchant_id: str = Field(alias="merchantId")
-    merchant_name: str = Field(alias="merchantName")
-
-
-@dataclass
-class MerchantStatement(BaseModel):
-    list: List[MerchantStatementItem]
-
-
-@dataclass
-class MerchantPubKey(BaseModel):
-    key: str
 
 
 # Wallet
