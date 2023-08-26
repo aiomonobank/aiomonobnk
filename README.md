@@ -1,7 +1,9 @@
 # Aiomonobnk
 <hr>
 
-![PyPI](https://img.shields.io/pypi/v/mbnk)
+![PyPI](https://img.shields.io/pypi/l/aiomonobnk)
+![PyPI](https://img.shields.io/pypi/v/aiomonobnk)
+![PyPI](https://img.shields.io/pypi/pyversions/aiomonobnk)
 
 ## Async Python3.11 Monobank API
 
