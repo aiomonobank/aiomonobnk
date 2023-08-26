@@ -17,7 +17,6 @@ async def main():
                 save_card=True
             )
         )
-        print(invoice)
         invoice_status = await client.remove_invoice(invoice_id=invoice.invoice_id)
         print(invoice_status)
 
