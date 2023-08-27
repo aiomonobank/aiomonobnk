@@ -15,6 +15,7 @@ from .merchant_pubkey import MerchantPubKey
 from .merchant_details import MerchantDetails
 from .merchant_statement import MerchantStatement
 from .merchant_statement_item import MerchantStatementItem
+from .merchant_paym_info import MerchantPaymInfo
 
 __all__ = [
     InvoiceCreated,
@@ -33,5 +34,6 @@ __all__ = [
     MerchantPubKey,
     MerchantDetails,
     MerchantStatement,
-    MerchantStatementItem
+    MerchantStatementItem,
+    MerchantPaymInfo
 ]

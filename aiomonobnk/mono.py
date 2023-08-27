@@ -17,7 +17,8 @@ from .enums import (
 )
 from .types import (
     SaveCardData,
-    Product
+    Product,
+    MerchantPaymInfo
 )
 
 
@@ -31,7 +32,7 @@ class MonoPay(Client):
             self,
             amount: int,
             ccy: CurrencyCode | None = None,
-            merchant_paym_info: dict | None = None,
+            merchant_paym_info: MerchantPaymInfo | None = None,
             redirect_url: str | None = None,
             web_hook_url: str | None = None,
             validity: int | None = None,

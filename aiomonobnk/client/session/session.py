@@ -89,6 +89,8 @@ class Session(BaseSession):
         else:
             data = None
 
+        print(data)
+
         if (
             request_method == RequestMethod.GET or
             request_method == RequestMethod.DELETE
@@ -96,6 +98,8 @@ class Session(BaseSession):
             query = self.build_query(method)
         else:
             query = None
+
+        print(url)
 
         try:
             async with session.request(

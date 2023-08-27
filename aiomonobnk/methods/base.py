@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod, ABCMeta
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 from enum import StrEnum
 
@@ -29,14 +29,20 @@ class Request(BaseModel, Generic[BaseType]):
 
 
 class Response(BaseModel, Generic[BaseType]):
-    model_config = ConfigDict(
-        use_enum_values=True,
-        extra="allow",
-        validate_assignment=True,
-        frozen=True,
-        populate_by_name=True,
-        arbitrary_types_allowed=True
-    )
+    result: BaseType | None = None
+    err_code: str | None = Field(alias='errCode', default=None)
+    err_text: str | None = Field(alias='errText', default=None)
+
+    def __init__(
+            self,
+            **kwargs
+    ):
+        if 'errCode' in kwargs:
+            super().__init__(**kwargs)
+        else:
+            super().__init__(
+                result={**kwargs}
+            )
 
 
 class ClientMethod(ClientContextController, BaseModel, Generic[BaseType], ABC):

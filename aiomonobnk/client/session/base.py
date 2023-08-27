@@ -1,5 +1,7 @@
 import abc
+import enum
 import json
+from enum import Enum
 
 from typing import (
     Callable, Any, Final, Type, TYPE_CHECKING, cast
@@ -47,21 +49,11 @@ class BaseSession(abc.ABC):
         try:
             json_data = self.json_loads(content)
         except Exception as ex:
-            raise Exception
 
-        if status_code == HTTPStatus.BAD_REQUEST:
-            raise ClientBadRequestError
-        if status_code == HTTPStatus.UNPROCESSABLE_ENTITY:
-            raise ClientBadRequestError
-        if status_code == HTTPStatus.NOT_FOUND:
-            raise ClientNotFoundError
-        if status_code == HTTPStatus.UNAUTHORIZED:
-            raise ClientUnauthorizedError
-        if status_code == HTTPStatus.FORBIDDEN:
-            raise ClientForbiddenError
+            raise ClientDecodeError("Failed to decode object", ex, content)
 
         try:
-            response_type = method.__returning__
+            response_type = Response[method.__returning__]
 
             if isinstance(json_data, list):
                 response = [
@@ -73,8 +65,34 @@ class BaseSession(abc.ABC):
         except ValidationError as e:
             raise e
 
+        if status_code == HTTPStatus.BAD_REQUEST:
+            raise ClientBadRequestError(
+                err_code=response.err_code,
+                err_text=response.err_text
+            )
+        if status_code == HTTPStatus.UNPROCESSABLE_ENTITY:
+            raise ClientBadRequestError(
+                err_code=response.err_code,
+                err_text=response.err_text
+            )
+        if status_code == HTTPStatus.NOT_FOUND:
+            raise ClientNotFoundError(
+                err_code=response.err_code,
+                err_text=response.err_text
+            )
+        if status_code == HTTPStatus.UNAUTHORIZED:
+            raise ClientUnauthorizedError(
+                err_code=response.err_code,
+                err_text=response.err_text
+            )
+        if status_code == HTTPStatus.FORBIDDEN:
+            raise ClientForbiddenError(
+                err_code=response.err_code,
+                err_text=response.err_text
+            )
+
         if status_code == HTTPStatus.OK:
-            return response
+            return response.result
 
     @abc.abstractmethod
     async def close(self) -> None:
@@ -96,8 +114,7 @@ class BaseSession(abc.ABC):
         """
         pass
 
-    @staticmethod
-    def prepare_value(value: Any):
+    def prepare_value(self, value: Any):
         """
         Prepare value before build
         """
@@ -106,6 +123,17 @@ class BaseSession(abc.ABC):
             return None
         if isinstance(value, str):
             return value
+
+        if isinstance(value, dict):
+            print(value)
+            new = {}
+            for k, v in value.items():
+                v = self.prepare_value(v)
+                if v is None:
+                    continue
+
+                new[k] = v
+            value = new
 
         return value
 
