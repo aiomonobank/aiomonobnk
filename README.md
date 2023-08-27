@@ -36,7 +36,7 @@ from aiomonobnk import MonoPay
 async def main():
     async_mono = MonoPay(token=os.getenv("MONOBANK_API_TOKEN"))
 
-    currency_list = await async_mono.public.currency()
+    invoice = await async_mono.create_invoice(...)
 
 
 if __name__ == "__main__":
