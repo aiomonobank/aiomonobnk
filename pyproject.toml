@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "aiomonobnk"
-version = "0.5.4"
+version = "0.5.5"
 description = "Full Async version Monobank Acquiring API"
 authors = ["yeghorkikhai <yeghorkikhai@gmail.com>"]
 license = "MIT"
